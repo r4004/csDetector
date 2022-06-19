@@ -6,68 +6,91 @@ The purpose of this tool is twofold:
 
 1. Contribute to the list of existing community smells that developers need to be aware of in their community.
 2. Provide developers with a tool to automatically detect community smells in their project.
-
-
- ## Video Demo
  
- [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/AarXmePrEXA/0.jpg)](https://www.youtube.com/watch?v=AarXmePrEXA&&ab_channel=Nurialmarimi)
- 
-## There are two ways to run the tool: 
+### The tool can be used in two different ways: 
 
-## 1) By stand-alone executable file under windows:
+## **1) Standalone usage**
+
+### Requirements:
+
 - Windows 10
+
 - Python 3.8.3
+
 - Java 8.0.231 
-- Open the folder that contains the executable file “devNetwork.exe” in command prompt "c:\tool_path\dist\devNetwork\".
-- run devNetwork.exe with the right parametres see the [Running](#Running) section.
 
-## 2) By the command line:
+### Process:
 
-## Stack
+1) Clone the current repository on your system
+
+2) In the repository find the *csDetector.exe* file which contains the tool ready to run without any installation
+
+3) Open a shell to execute the tool (we suggest Command Prompt)
+
+4) Run *csDetector.exe* with the right parametres see the [Running](#Running) section.
+
+
+## **2) Manual usage**
+
+### **2.1 Requirements**
 - Windows 10
 - VSCode 1.45.1
 - PowerShell 7.0.1
 - Python 3.8.3
 - Java 8.0.231
 
-# Installation
-All required modules **must be installed** prior to running the tool.
 
-## Recommended
+### **2.2 Installation**
+
+The tool require some additional modules to be installed that are listed in the *requirements.txt* file and also requires ConvoKit to be installed correctly. See the [references](#references) section for setup instructions..
+
+All required modules **must be installed** prior to running the tool. 
+
+
+
+
+**1) If your system has Powershell**
+
 Run **installModules.ps1** in PowerShell for a quick and simple setup. This will create an embedded **venv** environment and install all the necessary modules with correct versions without polluting the global namespace.
 
-## Manual
+**2) If your system does not has Powershell**
 
-### Packages
-Inspect **installModules.ps1** and **requiredModules.txt** files for a manual installation in an environment that does not have PowerShell.
-
-## ConvoKit
-The tool requires ConvoKit to be installed correctly. See the [references](#references) section for setup instructions.
+ Inspect **installModules.ps1** and **requirements.txt** files for a manual installation in an environment that does not have PowerShell. Always remember after the creation of the envirnoment to activate it using the proper activation script inside the **.venv/Scripts** folder.
 
 
-# Running
-If you followed the recommended installation approach, the virtual environment **must be activated** prior to running the tool! Run the proper to your environment activation script inside the **.venv/Scripts** folder.
 
-To run the tool you need run **devNetwork.py** with the right parameters. Pass the **--help** parameter to view the documentation. For example:
+
+### **2.3 Running**
+
+The tool can be used in two different ways:
+
+### **2.3.1 Running the tool using CLI**
+
+To run the tool you need run **csdetector.py** with the right parameters. Pass the **--help** parameter to view the documentation. For example:
 - (-p) for "GitHub PAT (personal access token) used for querying the GitHub API". 
 - **Optional**(-g) for "Google Cloud API Key used for authentication with the Perspective API". 
 - (-r) for "GitHub repository URL that you want to analyse". 
 - (-s) for  "local directory path to the SentiStregth tool" See the [references](#references) section. 
 - (-o) for "Local directory path for analysis output".
 - **Optional**(-sd) for “The desired date to start analyzing a project  YYYY-MM-DD”.
-## Configuration File
 
-#### aliasSimilarityMaxDistance (float)
+### **2.3.2 Using a web service call**
+
+To use the tool in this way, you have to run **csDetectorWebService.py** located in the *webservice* folder of the project. To detect the smells on a repository for example, it will only be necessary to open a browser and do a GET request to **http://localhost:5000/getSmells?repo=your_repo_link&pat=your_github_pat**. The response will be in a JSON format where the smells will be indicated using the acronym convention used in [Community Smells Definition](#community-smells-definitions) 
+
+## **3) Optional Configuration**
+
+### **aliasSimilarityMaxDistance (float)**
 For documentation on changing this value see:  
 https://github.com/luozhouyang/python-string-similarity#metric-longest-common-subsequence  
 *Ex: 0.75*
 
-# Aliases
+### **Aliases**
 It is recommended to generate and massage author aliases prior to analyzing repositories to minimize the number of duplicate users who have historically used multiple emails for their commits skewing the developer network analysis.
 
 To generate author aliases, run **authorAliasExtractor.py** with the right parameters. Pass **--help** for parameter documentation.
 
-# References
+## **4) References**
 - GitHub GraphQL API Explorer  
 https://docs.github.com/en/graphql/overview/explorer
 

@@ -16,3 +16,4 @@ convokit==2.5.3
 xlrd==2.0.1
 openpyxl==3.0.9
 pytest==7.1.2
+flask==2.1.2

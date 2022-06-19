@@ -39,9 +39,7 @@ communitySmells = [
 ]
 
 
-# This is the actual target , which means has the functionality we need
-
-
+# This is the actual target of the adapter pattern, which means has the functionality we need
 def devNetwork(argv):
     try:
         # validate running in venv
@@ -204,8 +202,6 @@ def devNetwork(argv):
             del repo
 
 # converting community smell acronym in full name
-
-
 def get_community_smell_name(smell):
     for sm in communitySmells:
         if sm["acronym"] == smell:
