@@ -35,15 +35,13 @@ communitySmells = [
     {"acronym": "OS", "name": "Organizational Skirmish"},
     {"acronym": "SD", "name": "Solution Defiance "},
     {"acronym": "RS", "name": "Radio Silence"},
-    {"acronym": "TFS", "name": "Truck Factor Smell"},
+    {"acronym": "TF", "name": "Truck Factor Smell"},
     {"acronym": "UI", "name": "Unhealthy Interaction"},
     {"acronym": "TC", "name": "Toxic Communication"},
 ]
 
 
-# This is the actual target , which means has the functionality we need
-
-
+# This is the actual target of the adapter pattern, which means has the functionality we need
 def devNetwork(argv):
     try:
         # validate running in venv
@@ -198,7 +196,7 @@ def devNetwork(argv):
                     result[smellName] = [
                         smell, get_community_smell_name(detectedSmells[index])]
             add_to_smells_dataset(
-                config, batchDate.strftime("%m/%d/%Y"), detectedSmells)
+                config, batchDate.strftime("%m/%d/%Y"), detectedSmells, './communitySmellsDataset.xlsx')
         return result, detectedSmells
     finally:
         # close repo to avoid resource leaks
@@ -206,8 +204,6 @@ def devNetwork(argv):
             del repo
 
 # converting community smell acronym in full name
-
-
 def get_community_smell_name(smell):
     for sm in communitySmells:
         if sm["acronym"] == smell:
@@ -217,23 +213,23 @@ def get_community_smell_name(smell):
 # collecting execution data into a dataset
 
 
-def add_to_smells_dataset(config, startingDate, detectedSmells):
-    with pd.ExcelWriter('./communitySmellsDataset.xlsx', engine="openpyxl", mode='a', if_sheet_exists="overlay") as writer:
+def add_to_smells_dataset(config, starting_date, detected_smells, path):
+    with pd.ExcelWriter(path, engine="openpyxl", mode='a', if_sheet_exists="overlay") as writer:
         dataframe = pd.DataFrame(index=[writer.sheets['dataset'].max_row],
                                  data={'repositoryUrl': [config.repositoryUrl],
                                        'repositoryName': [config.repositoryName],
                                        'repositoryAuthor': [config.repositoryOwner],
-                                       'startingDate': [startingDate],
-                                       'OSE': [str(detectedSmells.count('OSE'))],
-                                       'BCE': [str(detectedSmells.count('BCE'))],
-                                       'PDE': [str(detectedSmells.count('PDE'))],
-                                       'SV': [str(detectedSmells.count('SV'))],
-                                       'OS': [str(detectedSmells.count('OS'))],
-                                       'SD': [str(detectedSmells.count('SD'))],
-                                       'RS': [str(detectedSmells.count('RS'))],
-                                       'TFS': [str(detectedSmells.count('TFS'))],
-                                       'UI': [str(detectedSmells.count('UI'))],
-                                       'TC': [str(detectedSmells.count('TC'))]
+                                       'startingDate': [starting_date],
+                                       'OSE': [str(detected_smells.count('OSE'))],
+                                       'BCE': [str(detected_smells.count('BCE'))],
+                                       'PDE': [str(detected_smells.count('PDE'))],
+                                       'SV': [str(detected_smells.count('SV'))],
+                                       'OS': [str(detected_smells.count('OS'))],
+                                       'SD': [str(detected_smells.count('SD'))],
+                                       'RS': [str(detected_smells.count('RS'))],
+                                       'TFS': [str(detected_smells.count('TFS'))],
+                                       'UI': [str(detected_smells.count('UI'))],
+                                       'TC': [str(detected_smells.count('TC'))]
                                        })
         dataframe.to_excel(writer, sheet_name="dataset",
                            startrow=writer.sheets['dataset'].max_row, header=False)

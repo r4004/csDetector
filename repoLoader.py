@@ -1,19 +1,16 @@
 import os
-import git
-
+import git  
+from os import path
 from configuration import Configuration
-
 import cadocsLogger 
 
 logger = cadocsLogger.get_cadocs_logger(__name__)
 def getRepo(config: Configuration):
-
     # build path
     repoPath = os.path.join(
         config.repositoryPath,
         "{}.{}".format(config.repositoryOwner, config.repositoryName),
     )
-
     # get repository reference
     repo = None
     if not os.path.exists(repoPath):
@@ -28,8 +25,8 @@ def getRepo(config: Configuration):
         print()
     else:
         repo = git.Repo(repoPath, odbt=git.GitCmdObjectDB)
-
     return repo
+
 
 
 class Progress(git.remote.RemoteProgress):
