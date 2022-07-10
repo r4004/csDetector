@@ -22,7 +22,9 @@ from graphqlAnalysis.issueAnalysis import issueAnalysis
 from smellDetection import smellDetection
 from politenessAnalysis import politenessAnalysis
 from dateutil.relativedelta import relativedelta
+import cadocsLogger 
 
+logger = cadocsLogger.get_cadocs_logger(__name__)
 FILEBROWSER_PATH = os.path.join(os.getenv("WINDIR"), "explorer.exe")
 
 communitySmells = [
@@ -239,7 +241,7 @@ def add_to_smells_dataset(config, startingDate, detectedSmells):
 
 class Progress(git.remote.RemoteProgress):
     def update(self, op_code, cur_count, max_count=None, message=""):
-        print(self._cur_line, end="\r")
+        logger(self._cur_line, end="\r")
 
 
 def commitDate(tag):

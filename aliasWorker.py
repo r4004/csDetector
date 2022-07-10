@@ -7,10 +7,14 @@ from progress.bar import Bar
 from utils import authorIdExtractor
 from configuration import Configuration
 
+import cadocsLogger 
+
+logger = cadocsLogger.get_cadocs_logger(__name__)
+
 
 def replaceAliases(commits: List[git.Commit], config: Configuration):
-    print("Cleaning aliased authors")
-
+    
+    logger.info("Cleaning aliased authors")
     # build path
     aliasPath = os.path.join(config.repositoryPath, "aliases.yml")
 

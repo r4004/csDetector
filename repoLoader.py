@@ -3,7 +3,9 @@ import git
 
 from configuration import Configuration
 
+import cadocsLogger 
 
+logger = cadocsLogger.get_cadocs_logger(__name__)
 def getRepo(config: Configuration):
 
     # build path
@@ -15,7 +17,7 @@ def getRepo(config: Configuration):
     # get repository reference
     repo = None
     if not os.path.exists(repoPath):
-        print("Downloading repository...")
+        logger.info("Downloading repository...")
         repo = git.Repo.clone_from(
             config.repositoryUrl,
             repoPath,

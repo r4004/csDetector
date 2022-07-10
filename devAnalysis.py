@@ -3,6 +3,9 @@ import csv
 
 from configuration import Configuration
 
+import cadocsLogger 
+
+logger = cadocsLogger.get_cadocs_logger(__name__)
 
 def devAnalysis(
     authorInfoDict: set, batchIdx: int, devs: set, coreDevs: set, config: Configuration
@@ -43,7 +46,7 @@ def devAnalysis(
     sponsoredTFC = sponsoredCommitCount / commitCount * 100
     experiencedTFC = experiencedCommitCount / commitCount * 100
 
-    print("Writing developer analysis results")
+    logger.info("Writing developer analysis results")
     with open(
         os.path.join(config.resultsPath, f"results_{batchIdx}.csv"), "a", newline=""
     ) as f:
