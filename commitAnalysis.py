@@ -12,7 +12,9 @@ from sentistrength import PySentiStr
 from git.objects.commit import Commit
 from configuration import Configuration
 import pytz
+import cadocsLogger 
 
+logger = cadocsLogger.get_cadocs_logger(__name__)
 
 def commitAnalysis(
     senti: PySentiStr,
@@ -87,7 +89,7 @@ def commitBatchAnalysis(
     experienceDays = 150
 
     # traverse all commits
-    print("Analyzing commits")
+    logger.info("Analyzing commits")
     startDate = None
     if config.startDate is not None:
         startDate = datetime.strptime(config.startDate, "%Y-%m-%d")
@@ -152,7 +154,7 @@ def commitBatchAnalysis(
         if not commit.author_tz_offset == 0 and time.hour >= 9 and time.hour <= 17:
             authorInfo["sponsoredCommitCount"] += 1
 
-    print("Analyzing commit message sentiment")
+    logger.info("Analyzing commit message sentiment")
     sentimentScores = []
     commitMessageSentimentsPositive = []
     commitMessageSentimentsNegative = []
@@ -166,7 +168,7 @@ def commitBatchAnalysis(
             result for result in filter(lambda value: value <= -1, sentimentScores)
         )
 
-    print("Analyzing authors")
+    logger.info("Analyzing authors")
     sponsoredAuthorCount = 0
     for login, author in authorInfoDict.items():
 
@@ -202,7 +204,7 @@ def commitBatchAnalysis(
     if lastCommitDate is not None:
         daysActive = (lastCommitDate - firstCommitDate).days
 
-    print("Outputting CSVs")
+    logger.info("Outputting CSVs")
 
     # output author days on project
     with open(

@@ -17,6 +17,9 @@ from utils import authorIdExtractor
 from statsAnalysis import outputStatistics
 from configuration import Configuration
 
+import cadocsLogger 
+
+logger = cadocsLogger.get_cadocs_logger(__name__)
 
 def centralityAnalysis(
     commits: List[Commit],
@@ -48,7 +51,7 @@ def processBatch(batchIdx: int, commits: List[Commit], config: Configuration):
     authorCommits = Counter({})
 
     # for all commits...
-    print("Analyzing centrality")
+    logger.info("Analyzing centrality")
     for commit in Bar("Processing").iter(commits):
         author = authorIdExtractor(commit.author)
 
@@ -82,7 +85,7 @@ def buildGraphQlNetwork(batchIdx: int, batch: list, prefix: str, config: Configu
     authorItems = Counter({})
 
     # for all commits...
-    print("Analyzing centrality")
+    logger.info("Analyzing centrality")
     for authors in batch:
 
         for author in authors:
@@ -112,7 +115,7 @@ def prepareGraph(
 ):
 
     # prepare graph
-    print("Preparing NX graph")
+    logger.info("Preparing NX graph")
     G = nx.Graph()
 
     for author in allRelatedAuthors:
@@ -155,7 +158,7 @@ def prepareGraph(
     # calculate TFC
     tfc = sum(authorItems[author] for author in highCentralityAuthors) / sum(authorItems.values()) * 100
 
-    print("Outputting CSVs")
+    logger.info("Outputting CSVs")
 
     # output non-tabular results
     with open(
@@ -254,7 +257,7 @@ def prepareGraph(
     )
 
     # output graph
-    print("Outputting graph")
+    logger.info("Outputting graph")
     plt.figure(5, figsize=(30, 30))
 
     nx.draw(

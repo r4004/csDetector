@@ -22,7 +22,9 @@ from graphqlAnalysis.issueAnalysis import issueAnalysis
 from smellDetection import smellDetection
 from politenessAnalysis import politenessAnalysis
 from dateutil.relativedelta import relativedelta
+import cadocsLogger 
 
+logger = cadocsLogger.get_cadocs_logger(__name__)
 FILEBROWSER_PATH = os.path.join(os.getenv("WINDIR"), "explorer.exe")
 
 communitySmells = [
@@ -121,6 +123,7 @@ def devNetwork(argv):
         coreDevs = centrality.centralityAnalysis(
             commits, delta, batchDates, config)
 
+        
         releaseAnalysis(commits, config, delta, batchDates)
 
         prParticipantBatches, prCommentBatches = prAnalysis(
@@ -196,6 +199,15 @@ def devNetwork(argv):
             add_to_smells_dataset(
                 config, batchDate.strftime("%m/%d/%Y"), detectedSmells, './communitySmellsDataset.xlsx')
         return result, detectedSmells
+
+    except Exception as error:
+        if str(error).__contains__("401"):
+            logger.error("The PAT could be wrong or have reached the maximum number of requests. See https://docs.github.com/en/graphql/overview/resource-limitations for more informations")
+        else:
+            logger.error(error)
+
+        
+
     finally:
         # close repo to avoid resource leaks
         if "repo" in locals():
@@ -235,7 +247,7 @@ def add_to_smells_dataset(config, starting_date, detected_smells, path):
 
 class Progress(git.remote.RemoteProgress):
     def update(self, op_code, cur_count, max_count=None, message=""):
-        print(self._cur_line, end="\r")
+        logger(self._cur_line, end="\r")
 
 
 def commitDate(tag):
