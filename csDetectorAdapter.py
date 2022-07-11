@@ -12,7 +12,7 @@ class CsDetectorAdapter(CsDetector):
 
     def executeTool(self, gitRepository, gitPAT, startingDate="null", sentiFolder="./senti", outputFolder="./out"):
 
-        if(startingDate == "null"):
+        if startingDate == "null":
             # in this branch we execute the tool normally because no date was provided
             return super().executeTool(
                 ["-p", gitPAT, "-r", gitRepository, "-s", sentiFolder, "-o", outputFolder])

@@ -4,13 +4,14 @@ import csv
 import datetime
 
 from progress.bar import Bar
-from statsAnalysis import outputStatistics
+from statsAnalysis import output_statistics
 from typing import List
 from dateutil.relativedelta import relativedelta
 from configuration import Configuration
-import cadocsLogger 
+import cadocsLogger
 
 logger = cadocsLogger.get_cadocs_logger(__name__)
+
 
 def tagAnalysis(
     repo: git.Repo,
@@ -21,45 +22,47 @@ def tagAnalysis(
 ):
     logger.info("Analyzing tags")
 
-    tagInfo = []
-    logger.info("Sorting (no progress available, may take several minutes to complete)")
+    tag_info = []
+    logger.info(
+        "Sorting (no progress available, may take several minutes to complete)")
     tags = sorted(repo.tags, key=getTaggedDate)
 
     # get tag list
     if len(tags) > 0:
-        lastTag = None
+        last_tag = None
         for tag in Bar("Processing").iter(tags):
-            commitCount = 0
-            if lastTag == None:
-                commitCount = len(list(tag.commit.iter_items(repo, tag.commit)))
+
+            if last_tag is None:
+                commit_count = len(
+                    list(tag.commit.iter_items(repo, tag.commit)))
             else:
-                sinceStr = formatDate(getTaggedDate(lastTag))
-                commitCount = len(
-                    list(tag.commit.iter_items(repo, tag.commit, after=sinceStr))
+                since_str = formatDate(getTaggedDate(last_tag))
+                commit_count = len(
+                    list(tag.commit.iter_items(repo, tag.commit, after=since_str))
                 )
 
-            tagInfo.append(
+            tag_info.append(
                 dict(
                     path=tag.path,
                     rawDate=getTaggedDate(tag),
                     date=formatDate(getTaggedDate(tag)),
-                    commitCount=commitCount,
+                    commitCount=commit_count,
                 )
             )
 
-            lastTag = tag
+            last_tag = tag
 
     # output tag batches
     for idx, batchStartDate in enumerate(batchDates):
-        batchEndDate = batchStartDate + delta
+        batch_end_date = batchStartDate + delta
 
-        batchTags = [
+        batch_tags = [
             tag
-            for tag in tagInfo
-            if tag["rawDate"] >= batchStartDate and tag["rawDate"] < batchEndDate
+            for tag in tag_info
+            if batchStartDate <= tag["rawDate"] < batch_end_date
         ]
 
-        outputTags(idx, batchTags, daysActive[idx], config)
+        outputTags(idx, batch_tags, daysActive[idx], config)
 
 
 def outputTags(idx: int, tagInfo: List[dict], daysActive: int, config: Configuration):
@@ -91,7 +94,7 @@ def outputTags(idx: int, tagInfo: List[dict], daysActive: int, config: Configura
         for tag in tagInfo:
             w.writerow([tag["path"], tag["date"], tag["commitCount"]])
 
-    outputStatistics(
+    output_statistics(
         idx,
         [tag["commitCount"] for tag in tagInfo],
         "TagCommitCount",
@@ -102,7 +105,7 @@ def outputTags(idx: int, tagInfo: List[dict], daysActive: int, config: Configura
 def getTaggedDate(tag):
     date = None
 
-    if tag.tag == None:
+    if tag.tag is None:
         date = tag.commit.committed_datetime
     else:
 

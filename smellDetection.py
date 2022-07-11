@@ -4,17 +4,20 @@ import warnings
 
 from joblib import load
 from configuration import Configuration
-import cadocsLogger 
+import cadocsLogger
 
 logger = cadocsLogger.get_cadocs_logger(__name__)
-warnings.filterwarnings("ignore") 
-def smellDetection(config: Configuration, batchIdx: int):
+warnings.filterwarnings("ignore")
+
+
+def smell_detection(config: Configuration, batchIdx: int):
 
     # prepare results holder for easy mapping
     results = {}
 
     # open finalized results for reading
-    project_csv_path = os.path.join(config.resultsPath, f"results_{batchIdx}.csv")
+    project_csv_path = os.path.join(
+        config.resultsPath, f"results_{batchIdx}.csv")
     with open(project_csv_path, newline="") as csvfile:
         rows = csv.reader(csvfile, delimiter=",")
 
@@ -29,18 +32,19 @@ def smellDetection(config: Configuration, batchIdx: int):
     smells = ["OSE", "BCE", "PDE", "SV", "OS", "SD", "RS", "TF", "UI", "TC"]
     all_models = {}
     for smell in smells:
-        modelPath = os.path.abspath("./models/{}.joblib".format(smell))
-        all_models[smell] = load(modelPath)
+        model_path = os.path.abspath("./models/{}.joblib".format(smell))
+        all_models[smell] = load(model_path)
 
     # detect smells
-    rawSmells = {smell: all_models[smell].predict(metrics) for smell in all_models}
-    detectedSmells = [smell for smell in smells if rawSmells[smell][0] == 1]
+    raw_smells = {smell: all_models[smell].predict(
+        metrics) for smell in all_models}
+    detected_smells = [smell for smell in smells if raw_smells[smell][0] == 1]
 
     # add last commit date as first output param
-    detectedSmells.insert(0, results["LastCommitDate"])
+    detected_smells.insert(0, results["LastCommitDate"])
 
     # returning detected smells to devNetwork to handle output
-    return detectedSmells
+    return detected_smells
 
 
 def buildMetricsList(results: dict):
@@ -107,7 +111,8 @@ def buildMetricsList(results: dict):
         result = results.get(name, 0)
         if not result:
 
-            logger.info(f"No value for '{name}' during smell detection, defaulting to 0")
+            logger.info(
+                f"No value for '{name}' during smell detection, defaulting to 0")
             result = 0
 
         metrics.append(result)

@@ -6,32 +6,32 @@ import statsAnalysis as stats
 from configuration import Configuration
 
 
-def politenessAnalysis(
+def politeness_analysis(
     config: Configuration,
     prCommentBatches: list,
     issueCommentBatches: list,
 ):
-    calculateACCL(config, prCommentBatches, issueCommentBatches)
+    calculate_accl(config, prCommentBatches, issueCommentBatches)
 
-    
-
-    calculateRPC(config, "PR", prCommentBatches)
-    calculateRPC(config, "Issue", prCommentBatches)
+    calculate_rpc(config, "PR", prCommentBatches)
+    calculate_rpc(config, "Issue", prCommentBatches)
 
 
-def calculateACCL(config, prCommentBatches, issueCommentBatches):
-    for batchIdx, batch in enumerate(prCommentBatches):
+def calculate_accl(config, pr_comment_batches, issue_comment_batches):
+    for batch_idx, batch in enumerate(pr_comment_batches):
 
-        prCommentLengths = list([len(c) for c in batch])
-        issueCommentBatch = list([len(c) for c in issueCommentBatches[batchIdx]])
+        pr_comment_lengths = list([len(c) for c in batch])
+        issue_comment_batch = list([len(c)
+                                 for c in issue_comment_batches[batch_idx]])
 
-        prCommentLengthsMean = stats.calculateStats(prCommentLengths)["mean"]
-        issueCommentLengthsMean = stats.calculateStats(issueCommentBatch)["mean"]
+        pr_comment_lengths_mean = stats.calculate_stats(pr_comment_lengths)["mean"]
+        issue_comment_lengths_mean = stats.calculate_stats(issue_comment_batch)[
+            "mean"]
 
-        accl = prCommentLengthsMean + issueCommentLengthsMean / 2
+        accl = pr_comment_lengths_mean + issue_comment_lengths_mean / 2
 
         # output results
-        with open(os.path.join(config.resultsPath, f"results_{batchIdx}.csv"),
+        with open(os.path.join(config.resultsPath, f"results_{batch_idx}.csv"),
                   "a",
                   newline=""
                   ) as f:
@@ -39,23 +39,23 @@ def calculateACCL(config, prCommentBatches, issueCommentBatches):
             w.writerow([f"ACCL", accl])
 
 
-def calculateRPC(config, outputPrefix, commentBatches):
-    for batchIdx, batch in enumerate(commentBatches):
+def calculate_rpc(config, output_prefix, comment_batches):
+    for batch_idx, batch in enumerate(comment_batches):
 
         # analyze batch
-        positiveMarkerCount = getResults(batch)
+        positive_marker_count = get_results(batch)
 
         # output results
         with open(
-            os.path.join(config.resultsPath, f"results_{batchIdx}.csv"),
+            os.path.join(config.resultsPath, f"results_{batch_idx}.csv"),
             "a",
             newline="",
         ) as f:
             w = csv.writer(f, delimiter=",")
-            w.writerow([f"RPC{outputPrefix}", positiveMarkerCount])
+            w.writerow([f"RPC{output_prefix}", positive_marker_count])
 
 
-def getResults(comments: list):
+def get_results(comments: list):
 
     # define default speaker
     speaker = convokit.Speaker(id="default", name="default")
@@ -81,11 +81,11 @@ def getResults(comments: list):
     features = corpus.get_utterances_dataframe()
 
     # get positive politeness marker count
-    positiveMarkerCount = sum(
+    positive_marker_count = sum(
         [
             feature["feature_politeness_==HASPOSITIVE=="]
             for feature in features["meta.politeness_strategies"]
         ]
     )
 
-    return positiveMarkerCount
+    return positive_marker_count
