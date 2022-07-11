@@ -123,6 +123,7 @@ def devNetwork(argv):
         coreDevs = centrality.centralityAnalysis(
             commits, delta, batchDates, config)
 
+        
         releaseAnalysis(commits, config, delta, batchDates)
 
         prParticipantBatches, prCommentBatches = prAnalysis(
@@ -198,6 +199,15 @@ def devNetwork(argv):
             add_to_smells_dataset(
                 config, batchDate.strftime("%m/%d/%Y"), detectedSmells, './communitySmellsDataset.xlsx')
         return result, detectedSmells
+
+    except Exception as error:
+        if str(error).__contains__("401"):
+            logger.error("The PAT could be wrong or have reached the maximum number of requests. See https://docs.github.com/en/graphql/overview/resource-limitations for more informations")
+        else:
+            logger.error(error)
+
+        
+
     finally:
         # close repo to avoid resource leaks
         if "repo" in locals():
