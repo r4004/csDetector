@@ -44,46 +44,9 @@ communitySmells = [
 # This is the actual target of the adapter pattern, which means has the functionality we need
 def devNetwork(argv):
     try:
-        # validate running in venv
-        if not hasattr(sys, "prefix"):
-            raise Exception(
-                "The tool does not appear to be running in the virtual environment!\nSee README for activation."
-            )
-
-        # validate python version
-        if sys.version_info.major != 3 or sys.version_info.minor != 8:
-            raise Exception(
-                "Expected Python 3.8 as runtime but got {0}.{1}, the tool might not run as expected!\nSee README for stack requirements.".format(
-                    sys.version_info.major,
-                    sys.version_info.minor,
-                    sys.version_info.micro,
-                )
-            )
-
-        # validate installed modules
-        required = {
-            "wheel",
-            "networkx",
-            "pandas",
-            "matplotlib",
-            "gitpython",
-            "requests",
-            "pyyaml",
-            "progress",
-            "strsimpy",
-            "python-dateutil",
-            "sentistrength",
-            "joblib",
-        }
-        installed = {pkg for pkg in pkg_resources.working_set.by_key}
-        missing = required - installed
-
-        if len(missing) > 0:
-            raise Exception(
-                "Missing required modules: {0}.\nSee README for tool installation.".format(
-                    missing
-                )
-            )
+        
+        # calling the method for validate the prerequisites of csDetector
+        validate()
 
         # parse args
         config = parse_dev_network_args(argv)
@@ -274,3 +237,47 @@ def explore(path):
         subprocess.run([FILEBROWSER_PATH, path])
     elif os.path.isfile(path):
         subprocess.run([FILEBROWSER_PATH, "/select,", os.path.normpath(path)])
+        
+
+# validate the installation pre-requisites of the tool
+def validate():
+    # validate running in venv
+        if not hasattr(sys, "prefix"):
+            raise Exception(
+                "The tool does not appear to be running in the virtual environment!\nSee README for activation."
+            )
+
+        # validate python version
+        if sys.version_info.major != 3 or sys.version_info.minor != 8:
+            raise Exception(
+                "Expected Python 3.8 as runtime but got {0}.{1}, the tool might not run as expected!\nSee README for stack requirements.".format(
+                    sys.version_info.major,
+                    sys.version_info.minor,
+                    sys.version_info.micro,
+                )
+            )
+
+        # validate installed modules
+        required = {
+            "wheel",
+            "networkx",
+            "pandas",
+            "matplotlib",
+            "gitpython",
+            "requests",
+            "pyyaml",
+            "progress",
+            "strsimpy",
+            "python-dateutil",
+            "sentistrength",
+            "joblib",
+        }
+        installed = {pkg for pkg in pkg_resources.working_set.by_key}
+        missing = required - installed
+
+        if len(missing) > 0:
+            raise Exception(
+                "Missing required modules: {0}.\nSee README for tool installation.".format(
+                    missing
+                )
+            )
