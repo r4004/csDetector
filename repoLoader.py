@@ -1,32 +1,33 @@
 import os
-import git  
+import git
 from os import path
 from configuration import Configuration
-import cadocsLogger 
+import cadocsLogger
 
 logger = cadocsLogger.get_cadocs_logger(__name__)
-def getRepo(config: Configuration):
+
+
+def get_repo(config: Configuration):
     # build path
-    repoPath = os.path.join(
+    repo_path = os.path.join(
         config.repositoryPath,
         "{}.{}".format(config.repositoryOwner, config.repositoryName),
     )
     # get repository reference
     repo = None
-    if not os.path.exists(repoPath):
+    if not os.path.exists(repo_path):
         logger.info("Downloading repository...")
         repo = git.Repo.clone_from(
             config.repositoryUrl,
-            repoPath,
+            repo_path,
             branch="master",
             progress=Progress(),
             odbt=git.GitCmdObjectDB,
         )
         print()
     else:
-        repo = git.Repo(repoPath, odbt=git.GitCmdObjectDB)
+        repo = git.Repo(repo_path, odbt=git.GitCmdObjectDB)
     return repo
-
 
 
 class Progress(git.remote.RemoteProgress):

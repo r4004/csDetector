@@ -9,20 +9,20 @@ import sentistrength
 import csv
 import pandas as pd
 
-from configuration import parseDevNetworkArgs
-from repoLoader import getRepo
-from aliasWorker import replaceAliases
-from commitAnalysis import commitAnalysis
+from configuration import parse_dev_network_args
+from repoLoader import get_repo
+from aliasWorker import replace_aliases
+from commitAnalysis import commit_analysis
 import centralityAnalysis as centrality
 from tagAnalysis import tagAnalysis
 from devAnalysis import devAnalysis
 from graphqlAnalysis.releaseAnalysis import releaseAnalysis
 from graphqlAnalysis.prAnalysis import prAnalysis
 from graphqlAnalysis.issueAnalysis import issueAnalysis
-from smellDetection import smellDetection
-from politenessAnalysis import politenessAnalysis
+from smellDetection import smell_detection
+from politenessAnalysis import politeness_analysis
 from dateutil.relativedelta import relativedelta
-import cadocsLogger 
+import cadocsLogger
 
 logger = cadocsLogger.get_cadocs_logger(__name__)
 FILEBROWSER_PATH = os.path.join(os.getenv("WINDIR"), "explorer.exe")
@@ -44,49 +44,12 @@ communitySmells = [
 # This is the actual target of the adapter pattern, which means has the functionality we need
 def devNetwork(argv):
     try:
-        # validate running in venv
-        if not hasattr(sys, "prefix"):
-            raise Exception(
-                "The tool does not appear to be running in the virtual environment!\nSee README for activation."
-            )
-
-        # validate python version
-        if sys.version_info.major != 3 or sys.version_info.minor != 8:
-            raise Exception(
-                "Expected Python 3.8 as runtime but got {0}.{1}, the tool might not run as expected!\nSee README for stack requirements.".format(
-                    sys.version_info.major,
-                    sys.version_info.minor,
-                    sys.version_info.micro,
-                )
-            )
-
-        # validate installed modules
-        required = {
-            "wheel",
-            "networkx",
-            "pandas",
-            "matplotlib",
-            "gitpython",
-            "requests",
-            "pyyaml",
-            "progress",
-            "strsimpy",
-            "python-dateutil",
-            "sentistrength",
-            "joblib",
-        }
-        installed = {pkg for pkg in pkg_resources.working_set.by_key}
-        missing = required - installed
-
-        if len(missing) > 0:
-            raise Exception(
-                "Missing required modules: {0}.\nSee README for tool installation.".format(
-                    missing
-                )
-            )
+        
+        # calling the method for validate the prerequisites of csDetector
+        validate()
 
         # parse args
-        config = parseDevNetworkArgs(argv)
+        config = parse_dev_network_args(argv)
         # prepare folders
         if os.path.exists(config.resultsPath):
             remove_tree(config.resultsPath)
@@ -94,111 +57,110 @@ def devNetwork(argv):
         os.makedirs(config.metricsPath)
 
         # get repository reference
-        repo = getRepo(config)
+        repo = get_repo(config)
 
         # setup sentiment analysis
         senti = sentistrength.PySentiStr()
 
-        sentiJarPath = os.path.join(
+        senti_jar_path = os.path.join(
             config.sentiStrengthPath, "SentiStrength.jar").replace("\\", "/")
-        senti.setSentiStrengthPath(sentiJarPath)
+        senti.setSentiStrengthPath(senti_jar_path)
 
-        sentiDataPath = os.path.join(
+        senti_data_path = os.path.join(
             config.sentiStrengthPath, "SentiStrength_Data").replace("\\", "/") + "/"
-        senti.setSentiStrengthLanguageFolderPath(sentiDataPath)
+        senti.setSentiStrengthLanguageFolderPath(senti_data_path)
 
         # prepare batch delta
         delta = relativedelta(months=+config.batchMonths)
 
         # handle aliases
-        commits = list(replaceAliases(repo.iter_commits(), config))
+        commits = list(replace_aliases(repo.iter_commits(), config))
 
         # run analysis
-        batchDates, authorInfoDict, daysActive = commitAnalysis(
+        batch_dates, author_info_dict, days_active = commit_analysis(
             senti, commits, delta, config
         )
 
-        tagAnalysis(repo, delta, batchDates, daysActive, config)
+        tagAnalysis(repo, delta, batch_dates, days_active, config)
 
-        coreDevs = centrality.centralityAnalysis(
-            commits, delta, batchDates, config)
+        core_devs = centrality.centrality_analysis(
+            commits, delta, batch_dates, config)
 
-        
-        releaseAnalysis(commits, config, delta, batchDates)
+        releaseAnalysis(commits, config, delta, batch_dates)
 
-        prParticipantBatches, prCommentBatches = prAnalysis(
+        pr_participant_batches, pr_comment_batches = prAnalysis(
             config,
             senti,
             delta,
-            batchDates,
+            batch_dates,
         )
 
-        issueParticipantBatches, issueCommentBatches = issueAnalysis(
+        issue_participant_batches, issue_comment_batches = issueAnalysis(
             config,
             senti,
             delta,
-            batchDates,
+            batch_dates,
         )
 
-        politenessAnalysis(config, prCommentBatches, issueCommentBatches)
+        politeness_analysis(config, pr_comment_batches, issue_comment_batches)
         result = {}
-        for batchIdx, batchDate in enumerate(batchDates):
+        for batchIdx, batchDate in enumerate(batch_dates):
 
             # get combined author lists
-            combinedAuthorsInBatch = (
-                prParticipantBatches[batchIdx] +
-                issueParticipantBatches[batchIdx]
+            combined_authors_in_batch = (
+                pr_participant_batches[batchIdx] +
+                issue_participant_batches[batchIdx]
             )
 
             # build combined network
-            centrality.buildGraphQlNetwork(
+            centrality.build_graph_ql_network(
                 batchIdx,
-                combinedAuthorsInBatch,
+                combined_authors_in_batch,
                 "issuesAndPRsCentrality",
                 config,
             )
 
             # get combined unique authors for both PRs and issues
-            uniqueAuthorsInPrBatch = set(
-                author for pr in prParticipantBatches[batchIdx] for author in pr
+            unique_authors_in_pr_batch = set(
+                author for pr in pr_participant_batches[batchIdx] for author in pr
             )
 
-            uniqueAuthorsInIssueBatch = set(
-                author for pr in issueParticipantBatches[batchIdx] for author in pr
+            unique_authors_in_issue_batch = set(
+                author for pr in issue_participant_batches[batchIdx] for author in pr
             )
 
-            uniqueAuthorsInBatch = uniqueAuthorsInPrBatch.union(
-                uniqueAuthorsInIssueBatch
+            unique_authors_in_batch = unique_authors_in_pr_batch.union(
+                unique_authors_in_issue_batch
             )
 
             # get batch core team
-            batchCoreDevs = coreDevs[batchIdx]
+            batch_core_devs = core_devs[batchIdx]
 
             # run dev analysis
             devAnalysis(
-                authorInfoDict,
+                author_info_dict,
                 batchIdx,
-                uniqueAuthorsInBatch,
-                batchCoreDevs,
+                unique_authors_in_batch,
+                batch_core_devs,
                 config,
             )
 
             # run smell detection
-            detectedSmells = smellDetection(config, batchIdx)
+            detected_smells = smell_detection(config, batchIdx)
 
             # building a dictionary of detected community smells for each batch analyzed
             result["Index"] = batchIdx
             result["StartingDate"] = batchDate.strftime("%m/%d/%Y")
 
             # separating smells and converting in their full name
-            for index, smell in enumerate(detectedSmells):
-                if(index != 0):
-                    smellName = "Smell" + str(index)
-                    result[smellName] = [
-                        smell, get_community_smell_name(detectedSmells[index])]
+            for index, smell in enumerate(detected_smells):
+                if index != 0:
+                    smell_name = "Smell" + str(index)
+                    result[smell_name] = [
+                        smell, get_community_smell_name(detected_smells[index])]
             add_to_smells_dataset(
-                config, batchDate.strftime("%m/%d/%Y"), detectedSmells, './communitySmellsDataset.xlsx')
-        return result, detectedSmells
+                config, batchDate.strftime("%m/%d/%Y"), detected_smells, './communitySmellsDataset.xlsx')
+        return result, detected_smells
 
     except Exception as error:
         if str(error).__contains__("401"):
@@ -206,14 +168,14 @@ def devNetwork(argv):
         else:
             logger.error(error)
 
-        
-
     finally:
         # close repo to avoid resource leaks
         if "repo" in locals():
             del repo
 
 # converting community smell acronym in full name
+
+
 def get_community_smell_name(smell):
     for sm in communitySmells:
         if sm["acronym"] == smell:
@@ -275,3 +237,47 @@ def explore(path):
         subprocess.run([FILEBROWSER_PATH, path])
     elif os.path.isfile(path):
         subprocess.run([FILEBROWSER_PATH, "/select,", os.path.normpath(path)])
+        
+
+# validate the installation pre-requisites of the tool
+def validate():
+    # validate running in venv
+        if not hasattr(sys, "prefix"):
+            raise Exception(
+                "The tool does not appear to be running in the virtual environment!\nSee README for activation."
+            )
+
+        # validate python version
+        if sys.version_info.major != 3 or sys.version_info.minor != 8:
+            raise Exception(
+                "Expected Python 3.8 as runtime but got {0}.{1}, the tool might not run as expected!\nSee README for stack requirements.".format(
+                    sys.version_info.major,
+                    sys.version_info.minor,
+                    sys.version_info.micro,
+                )
+            )
+
+        # validate installed modules
+        required = {
+            "wheel",
+            "networkx",
+            "pandas",
+            "matplotlib",
+            "gitpython",
+            "requests",
+            "pyyaml",
+            "progress",
+            "strsimpy",
+            "python-dateutil",
+            "sentistrength",
+            "joblib",
+        }
+        installed = {pkg for pkg in pkg_resources.working_set.by_key}
+        missing = required - installed
+
+        if len(missing) > 0:
+            raise Exception(
+                "Missing required modules: {0}.\nSee README for tool installation.".format(
+                    missing
+                )
+            )

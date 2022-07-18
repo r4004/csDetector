@@ -1,7 +1,7 @@
 import git
 
 
-def authorIdExtractor(author: git.Actor):
+def author_id_extractor(author: git.Actor):
     id = ""
 
     if author.email is None:

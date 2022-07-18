@@ -107,14 +107,14 @@ def releaseAnalysis(
                     ]
                 )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             [value["authorsCount"] for key, value in releaseCommitsCount.items()],
             "ReleaseAuthorCount",
             config.resultsPath,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             [value["commitsCount"] for key, value in releaseCommitsCount.items()],
             "ReleaseCommitCount",

@@ -2,7 +2,7 @@ import math
 import os
 import csv
 import sys
-from perspectiveAnalysis import getToxicityPercentage
+from perspectiveAnalysis import get_toxicity_percentage
 import statsAnalysis as stats
 import sentistrength
 import graphqlAnalysis.graphqlAnalysisHelper as gql
@@ -140,9 +140,9 @@ def prAnalysis(
                 1 for _ in filter(lambda value: value <= -1, commentSentiments)
             )
 
-        toxicityPercentage = getToxicityPercentage(config, allComments)
+        toxicityPercentage = get_toxicity_percentage(config, allComments)
 
-        centrality.buildGraphQlNetwork(batchIdx, participants, "PRs", config)
+        centrality.build_graph_ql_network(batchIdx, participants, "PRs", config)
 
         logger.info("    Writing results")
         with open(
@@ -179,56 +179,56 @@ def prAnalysis(
                 w.writerow([pr["number"], len(set(pr["participants"]))])
 
         # output statistics
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             commentLengths,
             "PRCommentsLength",
             config.resultsPath,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             durations,
             "PRDuration",
             config.resultsPath,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             [len(pr["comments"]) for pr in batch],
             "PRCommentsCount",
             config.resultsPath,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             [pr["commitCount"] for pr in batch],
             "PRCommitsCount",
             config.resultsPath,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             commentSentiments,
             "PRCommentSentiments",
             config.resultsPath,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             [len(set(pr["participants"])) for pr in batch],
             "PRParticipantsCount",
             config.resultsPath,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             prPositiveComments,
             "PRCountPositiveComments",
             config.resultsPath,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             prNegativeComments,
             "PRCountNegativeComments",
