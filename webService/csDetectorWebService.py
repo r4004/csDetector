@@ -12,7 +12,8 @@ app.config['UPLOAD_FOLDER'] = "/"
 @app.route('/getSmells', methods=['GET'])
 def getSmells():
     needed_graphs = False
-    date = None
+    startDate = None
+    endDate = None
     if 'repo' in request.args:
         repo = str(request.args['repo'])
     else:
@@ -29,23 +30,37 @@ def getSmells():
         user = "default" 
 
     if 'graphs' in request.args:
-        needed_graphs = bool(request.args['graphs'])    
-    if 'date' in request.args:
-        date = request.args['date']
+        needed_graphs = bool(request.args['graphs'])
+    
+    if 'start' in request.args:
+        startDate = request.args['start']
+
+    if 'end' in request.args:
+        endDate = request.args['end']
+
     try:
         os.mkdir("../out/output_"+user)
     except:
         pass
 
     tool = CsDetectorAdapter()
-    if date is not None:
-        print(date)
-        els = str(date).split("/")
+    sd = "null"
+    ed = "null"
+
+    if startDate is not None:
+        print(startDate)
+        els = str(startDate).split("/")
         sd = els[2]+"-"+els[1]+"-"+els[0]
         print(sd)
-        formattedResult, result, config = tool.executeTool(repo, pat, startingDate=sd, outputFolder="out/output_"+user)
-    else:
-        formattedResult, result, config = tool.executeTool(repo, pat, outputFolder="out/output_"+user)
+
+    if endDate is not None:
+        print(endDate)
+        els1 = str(endDate).split("/")
+        ed = els1[2]+"-"+els1[1]+"-"+els1[0]
+        print(ed)
+
+    formattedResult, result, config = tool.executeTool(repo, pat, startingDate=sd, outputFolder="out/output_"+user, endDate=ed)
+
 
     paths=[]
     if needed_graphs:
