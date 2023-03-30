@@ -205,7 +205,7 @@ def get_community_smell_name(smell):
     return smell
 
 # collecting execution data into a dataset
-def add_to_smells_dataset(config, startingDate, detectedSmells):
+def add_to_smells_dataset(config, starting_date, detected_smells):
     with pd.ExcelWriter('./communitySmellsDataset.xlsx', engine="openpyxl", mode='a', if_sheet_exists="overlay") as writer:
         dataframe = pd.DataFrame(index=[writer.sheets['dataset'].max_row],
                                  data={'repositoryUrl': [config.repositoryUrl],
