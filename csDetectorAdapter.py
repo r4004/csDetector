@@ -6,7 +6,6 @@ from typing import Sequence
 # by inheriting csDetector, we override the method with bad specicied interface with a better
 # one that will call the superclass method after parsing the given input
 
-
 class CsDetectorAdapter(CsDetector):
     def __init__(self):
         super().__init__()

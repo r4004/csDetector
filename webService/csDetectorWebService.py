@@ -4,6 +4,7 @@ p = os.path.abspath('.')
 sys.path.insert(1, p)
 from flask import jsonify, request, send_file
 from csDetectorAdapter import CsDetectorAdapter
+import csv
  
 app = flask.Flask(__name__)
 app.config['UPLOAD_FOLDER'] = "/"
@@ -49,18 +50,17 @@ def getSmells():
 
     if startDate is not None:
         print(startDate)
-        els = str(startDate).split("/")
-        sd = els[2]+"-"+els[1]+"-"+els[0]
+        sd = startDate
         print(sd)
 
     if endDate is not None:
         print(endDate)
         els1 = str(endDate).split("/")
-        ed = els1[2]+"-"+els1[1]+"-"+els1[0]
+        ed = endDate
         print(ed)
 
-    formattedResult, result, config = tool.executeTool(repo, pat, startingDate=sd, outputFolder="out/output_"+user, endDate=ed)
-
+    output_path = "out/output_"+user
+    formattedResult, result, config = tool.executeTool(repo, pat, startingDate=sd, outputFolder=output_path, endDate=ed)
 
     paths=[]
     if needed_graphs:
@@ -69,8 +69,31 @@ def getSmells():
         paths.append(os.path.join(config.resultsPath, f"issuesAndPRsCentrality_0.pdf"))
         paths.append(os.path.join(config.resultsPath, f"PRs_0.pdf"))
     
-    r = jsonify({"result": result, "files":paths})
+
+    repo_name = extract_repo_name(repo)
+    metrics_filename = os.path.join(os.getcwd(), output_path, repo_name, "results","results_0.csv")
+    metrics_dict = {}
+
+    with open(metrics_filename, "r") as csvfile:
+        reader = csv.reader(csvfile)
+
+        # Iterate over the rows in the CSV file
+        for row in reader:
+            # Add the key-value pair to the dictionary
+            metrics_dict[row[0]] = row[1]
+
+    r = jsonify({"result": result, "files":paths, "metrics":metrics_dict})
     return r
+
+def extract_repo_name(url: str) -> str:
+    # Remove the protocol and split the URL into parts
+    parts = url.replace("https://", "").replace("http://", "").rstrip("/").split("/")
+    # Check if the URL ends with ".git" and remove it if present
+    if parts[-1].endswith(".git"):
+        parts[-1] = parts[-1][:-4]
+    # Join the last two parts and return the result
+    return "/".join(parts[-2:])
+
 
 @app.route('/uploads/<path:filename>')
 def download_file(filename):
