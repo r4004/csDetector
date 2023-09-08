@@ -32,11 +32,12 @@ def getSmells():
         needed_graphs = bool(request.args['graphs'])    
     if 'date' in request.args:
         date = request.args['date']
+    
     try:
-        os.mkdir("../out/output_"+user)
-    except:
+        os.mkdir("out/output_"+user)
+    except Exception as e:
         pass
-
+    
     tool = CsDetectorAdapter()
     if date is not None:
         print(date)
@@ -68,4 +69,4 @@ def home():
     return "<h1>Hello!</h1><p>To execute csDetector, please try running /getSmells?repo=REPOSITORY_URL&pat=GIT_PAT.</p>"
 
 
-app.run(port=5001, threaded=True)
+app.run(host='0.0.0.0', port=5001, threaded=True)
