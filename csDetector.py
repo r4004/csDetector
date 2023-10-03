@@ -3,6 +3,7 @@ import sys
 import os
 import cadocsLogger 
 
+
 logger = cadocsLogger.get_cadocs_logger(__name__)
 
 # since the interface of the execution is only command line input, we want something to adapt our web service

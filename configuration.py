@@ -14,7 +14,8 @@ class Configuration:
         maxDistance: int,
         pat: str,
         googleKey: str,
-        startDate: str
+        startDate: str,
+        endDate: str
     ):
         self.repositoryUrl = repositoryUrl
         self.batchMonths = batchMonths
@@ -24,6 +25,7 @@ class Configuration:
         self.pat = pat
         self.googleKey = googleKey
         self.startDate = startDate
+        self.endDate = endDate
 
         # parse repo name into owner and project name
         split = self.repositoryUrl.split("/")
@@ -150,6 +152,13 @@ def parseDevNetworkArgs(args: Sequence[str]):
         required=False,
     )
 
+    parser.add_argument(
+        "-ed",
+        "--endDate",
+        help="End date of project life",
+        required=False,
+    )
+
     args = parser.parse_args(args)
 
     #validation of the input inserted by the user
@@ -196,7 +205,8 @@ def parseDevNetworkArgs(args: Sequence[str]):
         0,
         args.pat,
         args.googleKey,
-        args.startDate
+        args.startDate,
+        args.endDate
     )
 
     return config

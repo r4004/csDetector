@@ -1,5 +1,6 @@
 import sys
 import os
+import platform
 import subprocess
 import shutil
 import stat
@@ -24,8 +25,13 @@ from politenessAnalysis import politenessAnalysis
 from dateutil.relativedelta import relativedelta
 import cadocsLogger 
 
+
 logger = cadocsLogger.get_cadocs_logger(__name__)
-FILEBROWSER_PATH = os.path.join(os.getenv("WINDIR"), "explorer.exe")
+if platform.system() == "Windows":
+    FILEBROWSER_PATH = os.path.join(os.getenv("WINDIR"), "explorer.exe")
+else:
+    FILEBROWSER_PATH = "open"
+
 
 communitySmells = [
     {"acronym": "OSE", "name": "Organizational Silo Effect"},
@@ -222,9 +228,8 @@ def get_community_smell_name(smell):
 
 # collecting execution data into a dataset
 
-
-def add_to_smells_dataset(config, starting_date, detected_smells, path):
-    with pd.ExcelWriter(path, engine="openpyxl", mode='a', if_sheet_exists="overlay") as writer:
+def add_to_smells_dataset(config, starting_date, detected_smells):
+    with pd.ExcelWriter('./communitySmellsDataset.xlsx', engine="openpyxl", mode='a', if_sheet_exists="overlay") as writer:
         dataframe = pd.DataFrame(index=[writer.sheets['dataset'].max_row],
                                  data={'repositoryUrl': [config.repositoryUrl],
                                        'repositoryName': [config.repositoryName],

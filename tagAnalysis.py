@@ -65,7 +65,7 @@ def tagAnalysis(
 def outputTags(idx: int, tagInfo: List[dict], daysActive: int, config: Configuration):
 
     # calculate FN
-    fn = len(tagInfo) / daysActive * 100
+    fn = len(tagInfo) / daysActive * 100 if daysActive > 0 else 0
 
     # output non-tabular results
     with open(
