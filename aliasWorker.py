@@ -4,27 +4,27 @@ import yaml
 
 from typing import List
 from progress.bar import Bar
-from utils import authorIdExtractor
+from utils import author_id_extractor
 from configuration import Configuration
 
-import cadocsLogger 
+import cadocsLogger
 
 logger = cadocsLogger.get_cadocs_logger(__name__)
 
 
-def replaceAliases(commits: List[git.Commit], config: Configuration):
-    
+def replace_aliases(commits: List[git.Commit], config: Configuration):
+
     logger.info("Cleaning aliased authors")
     # build path
-    aliasPath = os.path.join(config.repositoryPath, "aliases.yml")
+    alias_path = os.path.join(config.repositoryPath, "aliases.yml")
 
     # quick lowercase and trim if no alias file
-    if aliasPath == None or not os.path.exists(aliasPath):
+    if alias_path is None or not os.path.exists(alias_path):
         return commits
 
     # read aliases
     content = ""
-    with open(aliasPath, "r", encoding="utf-8-sig") as file:
+    with open(alias_path, "r", encoding="utf-8-sig") as file:
         content = file.read()
 
     aliases = yaml.load(content, Loader=yaml.FullLoader)
@@ -36,13 +36,13 @@ def replaceAliases(commits: List[git.Commit], config: Configuration):
             transposesAliases[email] = alias
 
     # replace all author aliases with a unique one
-    return replaceAll(commits, transposesAliases)
+    return replace_all(commits, transposesAliases)
 
 
-def replaceAll(commits, aliases):
+def replace_all(commits, aliases):
     for commit in Bar("Processing").iter(list(commits)):
         copy = commit
-        author = authorIdExtractor(commit.author)
+        author = author_id_extractor(commit.author)
 
         if author in aliases:
             copy.author.email = aliases[author]

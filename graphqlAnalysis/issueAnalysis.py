@@ -16,7 +16,7 @@ from datetime import date, datetime, timezone
 from configuration import Configuration
 import threading
 from collections import Counter
-from perspectiveAnalysis import getToxicityPercentage
+from perspectiveAnalysis import get_toxicity_percentage
 import cadocsLogger 
 
 logger = cadocsLogger.get_cadocs_logger(__name__)
@@ -142,9 +142,9 @@ def issueAnalysis(
                 1 for _ in filter(lambda value: value <= -1, commentSentiments)
             )
 
-        toxicityPercentage = getToxicityPercentage(config, allComments)
+        toxicityPercentage = get_toxicity_percentage(config, allComments)
 
-        centrality.buildGraphQlNetwork(batchIdx, participants, "Issues", config)
+        centrality.build_graph_ql_network(batchIdx, participants, "Issues", config)
 
         logger.info("Writing GraphQL analysis results")
         with open(
@@ -181,49 +181,49 @@ def issueAnalysis(
                 w.writerow([issue["number"], len(set(issue["participants"]))])
 
         # output statistics
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             commentLengths,
             "IssueCommentsLength",
             config.resultsPath,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             durations,
             "IssueDuration",
             config.resultsPath,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             [len(issue["comments"]) for issue in batch],
             "IssueCommentsCount",
             config.resultsPath,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             commentSentiments,
             "IssueCommentSentiments",
             config.resultsPath,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             [len(set(issue["participants"])) for issue in batch],
             "IssueParticipantCount",
             config.resultsPath,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             issuePositiveComments,
             "IssueCountPositiveComments",
             config.resultsPath,
         )
 
-        stats.outputStatistics(
+        stats.output_statistics(
             batchIdx,
             issueNegativeComments,
             "IssueCountNegativeComments",

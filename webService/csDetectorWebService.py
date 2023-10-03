@@ -1,17 +1,16 @@
+from csDetectorAdapter import CsDetectorAdapter
+from flask import jsonify, request, send_file
 import flask
-import os, sys
+import os
+import sys
 p = os.path.abspath('.')
 sys.path.insert(1, p)
-from flask import jsonify, request, send_file
-from csDetectorAdapter import CsDetectorAdapter
-import csv
- 
 app = flask.Flask(__name__)
 app.config['UPLOAD_FOLDER'] = "/"
 
 
 @app.route('/getSmells', methods=['GET'])
-def getSmells():
+def get_smells():
     needed_graphs = False
     startDate = None
     endDate = None
@@ -28,23 +27,28 @@ def getSmells():
     if 'user' in request.args:
         user = str(request.args['user'])
     else:
-        user = "default" 
+        user = "default"
 
     if 'graphs' in request.args:
         needed_graphs = bool(request.args['graphs'])
-    
+
     if 'start' in request.args:
         startDate = request.args['start']
+    if 'date' in request.args:
+        date = request.args['date']
+    try:
+        os.mkdir("../out/output_"+user)
+    except:
+        pass
 
     if 'end' in request.args:
         endDate = request.args['end']
-
 
     try:
         os.mkdir("out/output_"+user)
     except Exception as e:
         pass
-    
+
     tool = CsDetectorAdapter()
     sd = "null"
     ed = "null"
@@ -61,18 +65,21 @@ def getSmells():
         print(ed)
 
     output_path = "out/output_"+user
-    formattedResult, result, config = tool.executeTool(repo, pat, startingDate=sd, outputFolder=output_path, endDate=ed)
+    formattedResult, result, config = tool.executeTool(
+        repo, pat, startingDate=sd, outputFolder=output_path, endDate=ed)
 
-    paths=[]
+    paths = []
     if needed_graphs:
-        paths.append(os.path.join(config.resultsPath, f"commitCentrality_0.pdf"))
+        paths.append(os.path.join(
+            config.resultsPath, f"commitCentrality_0.pdf"))
         paths.append(os.path.join(config.resultsPath, f"Issues_0.pdf"))
-        paths.append(os.path.join(config.resultsPath, f"issuesAndPRsCentrality_0.pdf"))
+        paths.append(os.path.join(config.resultsPath,
+                     f"issuesAndPRsCentrality_0.pdf"))
         paths.append(os.path.join(config.resultsPath, f"PRs_0.pdf"))
-    
 
     repo_name = extract_repo_name(repo)
-    metrics_filename = os.path.join(os.getcwd(), output_path, repo_name, "results","results_0.csv")
+    metrics_filename = os.path.join(
+        os.getcwd(), output_path, repo_name, "results", "results_0.csv")
     metrics_dict = {}
 
     with open(metrics_filename, "r") as csvfile:
@@ -83,12 +90,14 @@ def getSmells():
             # Add the key-value pair to the dictionary
             metrics_dict[row[0]] = row[1]
 
-    r = jsonify({"result": result, "files":paths, "metrics":metrics_dict})
+    r = jsonify({"result": result, "files": paths, "metrics": metrics_dict})
     return r
+
 
 def extract_repo_name(url: str) -> str:
     # Remove the protocol and split the URL into parts
-    parts = url.replace("https://", "").replace("http://", "").rstrip("/").split("/")
+    parts = url.replace("https://", "").replace("http://",
+                                                "").rstrip("/").split("/")
     # Check if the URL ends with ".git" and remove it if present
     if parts[-1].endswith(".git"):
         parts[-1] = parts[-1][:-4]
@@ -100,7 +109,7 @@ def extract_repo_name(url: str) -> str:
 def download_file(filename):
     fn = os.path.join(os.getcwd(), filename)
     return send_file(fn)
- 
+
 
 @app.route('/', methods=['GET'])
 def home():

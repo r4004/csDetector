@@ -42,7 +42,7 @@ class Configuration:
         self.metricsPath = os.path.join(self.resultsPath, "metrics")
 
 
-def parseAliasArgs(args: Sequence[str]):
+def parse_alias_args(args: Sequence[str]):
 
     parser = argparse.ArgumentParser(
         description="Extract commit author aliases from GitHub repositories.",
@@ -95,7 +95,7 @@ def parseAliasArgs(args: Sequence[str]):
     return config
 
 
-def parseDevNetworkArgs(args: Sequence[str]):
+def parse_dev_network_args(args: Sequence[str]):
 
     parser = argparse.ArgumentParser(
         description="Perform network and statistical analysis on GitHub repositories.",

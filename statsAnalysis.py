@@ -3,14 +3,14 @@ import os
 import csv
 
 
-def outputStatistics(idx: int, data: list, metric: str, outputDir: str):
+def output_statistics(idx: int, data: list, metric: str, outputDir: str):
 
     # validate
     if len(data) < 1:
         return
 
     # calculate and output
-    stats = calculateStats(data)
+    stats = calculate_stats(data)
 
     # output
     with open(os.path.join(outputDir, f"results_{idx}.csv"), "a", newline="") as f:
@@ -20,7 +20,7 @@ def outputStatistics(idx: int, data: list, metric: str, outputDir: str):
             outputValue(w, metric, key, stats)
 
 
-def calculateStats(data):
+def calculate_stats(data):
 
     stats = dict(
         count=len(data),

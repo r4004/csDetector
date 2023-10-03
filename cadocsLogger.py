@@ -1,11 +1,11 @@
 import logging
 
-def get_cadocs_logger(name):
 
+def get_cadocs_logger(name):
 
     # Create a custom logger
     logging.basicConfig(level=logging.INFO)
-    
+
     cadocs_logger = logging.getLogger(name)
     cadocs_logger.propagate = False
     # Create handlers
@@ -13,7 +13,8 @@ def get_cadocs_logger(name):
     c_handler.setLevel(logging.INFO)
 
     # Create formatters and add it to handlers
-    c_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+    c_format = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
     c_handler.setFormatter(c_format)
 
     # Add handlers to the logger
