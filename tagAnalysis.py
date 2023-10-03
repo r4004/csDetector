@@ -8,7 +8,9 @@ from statsAnalysis import outputStatistics
 from typing import List
 from dateutil.relativedelta import relativedelta
 from configuration import Configuration
+import cadocsLogger 
 
+logger = cadocsLogger.get_cadocs_logger(__name__)
 
 def tagAnalysis(
     repo: git.Repo,
@@ -17,10 +19,10 @@ def tagAnalysis(
     daysActive: List[int],
     config: Configuration,
 ):
-    print("Analyzing tags")
+    logger.info("Analyzing tags")
 
     tagInfo = []
-    print("Sorting (no progress available, may take several minutes to complete)")
+    logger.info("Sorting (no progress available, may take several minutes to complete)")
     tags = sorted(repo.tags, key=getTaggedDate)
 
     # get tag list
@@ -73,7 +75,7 @@ def outputTags(idx: int, tagInfo: List[dict], daysActive: int, config: Configura
         w.writerow(["Tag Count", len(tagInfo)])
 
     # output tag info
-    print("Outputting CSVs")
+    logger.info("Outputting CSVs")
 
     with open(
         os.path.join(config.resultsPath, f"results_{idx}.csv"), "a", newline=""

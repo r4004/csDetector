@@ -9,7 +9,9 @@ from dateutil.relativedelta import relativedelta
 from dateutil.parser import isoparse
 from datetime import datetime
 from configuration import Configuration
+import cadocsLogger 
 
+logger = cadocsLogger.get_cadocs_logger(__name__)
 
 def releaseAnalysis(
     allCommits: List[git.Commit],
@@ -21,7 +23,7 @@ def releaseAnalysis(
     # sort commits by ascending commit date
     allCommits.sort(key=lambda c: c.committed_datetime)
 
-    print("Querying releases")
+    logger.info("Querying releases")
     batches = releaseRequest(config, delta, batchDates)
 
     for batchIdx, batch in enumerate(batches):
@@ -80,7 +82,7 @@ def releaseAnalysis(
             )
         }
 
-        print("Writing results")
+        logger.info("Writing results")
         with open(
             os.path.join(config.resultsPath, f"results_{batchIdx}.csv"), "a", newline=""
         ) as f:

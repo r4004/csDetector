@@ -4,7 +4,9 @@ import warnings
 
 from joblib import load
 from configuration import Configuration
+import cadocsLogger 
 
+logger = cadocsLogger.get_cadocs_logger(__name__)
 warnings.filterwarnings("ignore") 
 def smellDetection(config: Configuration, batchIdx: int):
 
@@ -105,7 +107,7 @@ def buildMetricsList(results: dict):
         result = results.get(name, 0)
         if not result:
 
-            print(f"No value for '{name}' during smell detection, defaulting to 0")
+            logger.info(f"No value for '{name}' during smell detection, defaulting to 0")
             result = 0
 
         metrics.append(result)

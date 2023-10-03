@@ -17,7 +17,9 @@ from configuration import Configuration
 import threading
 from collections import Counter
 from perspectiveAnalysis import getToxicityPercentage
+import cadocsLogger 
 
+logger = cadocsLogger.get_cadocs_logger(__name__)
 
 def issueAnalysis(
     config: Configuration,
@@ -26,7 +28,7 @@ def issueAnalysis(
     batchDates: List[datetime],
 ):
 
-    print("Querying issue comments")
+    logger.info("Querying issue comments")
     batches = issueRequest(
         config.pat, config.repositoryOwner, config.repositoryName, delta, batchDates
     )
@@ -35,7 +37,7 @@ def issueAnalysis(
     batchComments = list()
 
     for batchIdx, batch in enumerate(batches):
-        print(f"Analyzing issue batch #{batchIdx}")
+        logger.info(f"Analyzing issue batch #{batchIdx}")
 
         # extract data from batch
         issueCount = len(batch)
@@ -49,7 +51,7 @@ def issueAnalysis(
         issueNegativeComments = list()
         generallyNegative = list()
 
-        print(f"    Sentiments per issue", end="")
+        logger.info(f"    Sentiments per issue")
 
         semaphore = threading.Semaphore(15)
         threads = []
@@ -124,7 +126,7 @@ def issueAnalysis(
         # get pr duration stats
         durations = [(pr["closedAt"] - pr["createdAt"]).days for pr in batch]
 
-        print("    All sentiments")
+        logger.info("    All sentiments")
 
         # analyze comment issue sentiment
         commentSentiments = []
@@ -144,7 +146,7 @@ def issueAnalysis(
 
         centrality.buildGraphQlNetwork(batchIdx, participants, "Issues", config)
 
-        print("Writing GraphQL analysis results")
+        logger.info("Writing GraphQL analysis results")
         with open(
             os.path.join(config.resultsPath, f"results_{batchIdx}.csv"),
             "a",
@@ -275,7 +277,8 @@ def issueRequest(
         # get page of PRs
         query = buildIssueRequestQuery(owner, name, cursor)
         result = gql.runGraphqlRequest(pat, query)
-        print("...")
+        print(f".", end="")
+
 
         # extract nodes
         nodes = result["repository"]["issues"]["nodes"]

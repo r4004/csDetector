@@ -15,6 +15,8 @@ from configuration import Configuration
 import itertools
 import threading
 from collections import Counter
+import cadocsLogger 
+logger = cadocsLogger.get_cadocs_logger(__name__)
 
 
 def prAnalysis(
@@ -24,7 +26,7 @@ def prAnalysis(
     batchDates: List[datetime],
 ):
 
-    print("Querying PRs")
+    logger.info("Querying PRs")
     batches = prRequest(
         config.pat, config.repositoryOwner, config.repositoryName, delta, batchDates
     )
@@ -33,7 +35,7 @@ def prAnalysis(
     batchComments = list()
 
     for batchIdx, batch in enumerate(batches):
-        print(f"Analyzing PR batch #{batchIdx}")
+        logger.info(f"Analyzing PR batch #{batchIdx}")
 
         # extract data from batch
         prCount = len(batch)
@@ -47,7 +49,7 @@ def prAnalysis(
         prNegativeComments = list()
         generallyNegative = list()
 
-        print(f"    Sentiments per PR", end="")
+        logger.info(f"    Sentiments per PR")
 
         semaphore = threading.Semaphore(15)
         threads = []
@@ -110,7 +112,7 @@ def prAnalysis(
         for thread in threads:
             thread.join()
 
-        print("")
+        logger.info("")
 
         # save comments
         batchComments.append(allComments)
@@ -123,7 +125,7 @@ def prAnalysis(
         # get pr duration stats
         durations = [(pr["closedAt"] - pr["createdAt"]).days for pr in batch]
 
-        print("    All sentiments")
+        logger.info("    All sentiments")
 
         commentSentiments = []
         commentSentimentsPositive = 0
@@ -142,7 +144,7 @@ def prAnalysis(
 
         centrality.buildGraphQlNetwork(batchIdx, participants, "PRs", config)
 
-        print("    Writing results")
+        logger.info("    Writing results")
         with open(
             os.path.join(config.resultsPath, f"results_{batchIdx}.csv"),
             "a",
@@ -279,7 +281,8 @@ def prRequest(
 
         # get page
         result = gql.runGraphqlRequest(pat, query)
-        print("...")
+        print(f".", end="")
+
 
         # extract nodes
         nodes = result["repository"]["pullRequests"]["nodes"]
@@ -329,6 +332,7 @@ def prRequest(
         cursor = pageInfo["endCursor"]
         query = buildPrRequestQuery(owner, name, cursor)
 
+    
     if batch != None:
         batches.append(batch)
 

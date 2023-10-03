@@ -23,11 +23,15 @@ from graphqlAnalysis.issueAnalysis import issueAnalysis
 from smellDetection import smellDetection
 from politenessAnalysis import politenessAnalysis
 from dateutil.relativedelta import relativedelta
+import cadocsLogger 
 
+
+logger = cadocsLogger.get_cadocs_logger(__name__)
 if platform.system() == "Windows":
     FILEBROWSER_PATH = os.path.join(os.getenv("WINDIR"), "explorer.exe")
 else:
     FILEBROWSER_PATH = "open"
+
 
 communitySmells = [
     {"acronym": "OSE", "name": "Organizational Silo Effect"},
@@ -45,6 +49,7 @@ communitySmells = [
 
 # This is the actual target of the adapter pattern, which means has the functionality we need
 def devNetwork(argv):
+    try:
         # validate running in venv
         if not hasattr(sys, "prefix"):
             raise Exception(
@@ -124,6 +129,7 @@ def devNetwork(argv):
         coreDevs = centrality.centralityAnalysis(
             commits, delta, batchDates, config)
 
+        
         releaseAnalysis(commits, config, delta, batchDates)
 
         prParticipantBatches, prCommentBatches = prAnalysis(
@@ -197,9 +203,21 @@ def devNetwork(argv):
                     result[smellName] = [
                         smell, get_community_smell_name(detectedSmells[index])]
             add_to_smells_dataset(
-                config, batchDate.strftime("%m/%d/%Y"), detectedSmells)
-        return result, detectedSmells, config
+                config, batchDate.strftime("%m/%d/%Y"), detectedSmells, './communitySmellsDataset.xlsx')
+        return result, detectedSmells
 
+    except Exception as error:
+        if str(error).__contains__("401"):
+            logger.error("The PAT could be wrong or have reached the maximum number of requests. See https://docs.github.com/en/graphql/overview/resource-limitations for more informations")
+        else:
+            logger.error(error)
+
+        
+
+    finally:
+        # close repo to avoid resource leaks
+        if "repo" in locals():
+            del repo
 
 # converting community smell acronym in full name
 def get_community_smell_name(smell):
@@ -209,6 +227,7 @@ def get_community_smell_name(smell):
     return smell
 
 # collecting execution data into a dataset
+
 def add_to_smells_dataset(config, starting_date, detected_smells):
     with pd.ExcelWriter('./communitySmellsDataset.xlsx', engine="openpyxl", mode='a', if_sheet_exists="overlay") as writer:
         dataframe = pd.DataFrame(index=[writer.sheets['dataset'].max_row],
@@ -233,7 +252,7 @@ def add_to_smells_dataset(config, starting_date, detected_smells):
 
 class Progress(git.remote.RemoteProgress):
     def update(self, op_code, cur_count, max_count=None, message=""):
-        print(self._cur_line, end="\r")
+        logger(self._cur_line, end="\r")
 
 
 def commitDate(tag):
