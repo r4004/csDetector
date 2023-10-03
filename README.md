@@ -7,9 +7,42 @@ The purpose of this tool is twofold:
 1. Contribute to the list of existing community smells that developers need to be aware of in their community.
 2. Provide developers with a tool to automatically detect community smells in their project.
  
-### The tool can be used in two different ways: 
+### The tool can be used in three different ways: 
 
-## **1) Standalone usage**
+## 1) Docker installation
+### Requirements:
+
+- Docker Desktop
+
+### Process:
+
+1) Login in Docker Desktop with your account or open a terminal and run command:
+``` docker login ```
+
+2) To download docker image if you have a Windows or Linux operating system, run command:
+``` docker pull acannavale/cs-detector-webservice:latest ```
+alternatively, in case you have macOs Apple Silicon operating system, run this command:
+``` docker pull acannavale/cs-detector-webservice:macOS ```
+
+3) Run the Docker image in a container with command:
+``` docker run -p 5001:5001 <image_name> ```
+replace <image_name> with the name of the image on Docker Desktop (it should be ```acannavale/cs-detector-webservice:latest``` or ```acannavale/cs-detector-webservice:macOS```), alternatively you can run: ``` docker images ``` in order to see all your images
+
+4) Now csDetector is running on port 5001, have fun!
+
+### Build Image Locally
+1) Clone the repository
+
+2) Open a terminal and build the Docker image with command:
+``` docker build -t <image_name> . ```
+
+3) Run the Docker image in a container with command:
+``` docker run -p 5001:5001 <image_name> ```
+replace <image_name> with the name of the image on Docker Desktop, alternatively you can run: ``` docker images ``` in order to see all your images
+
+4) Now csDetector is running on port 5001, have fun!
+
+## **2) Standalone usage**
 
 ### Requirements:
 
@@ -30,7 +63,7 @@ The purpose of this tool is twofold:
 4) Run *csDetector.exe* with the right parametres see the [Running](#Running) section.
 
 
-## **2) Manual usage**
+## **3) Manual usage**
 
 ### **2.1 Requirements**
 - Windows 10
@@ -76,7 +109,7 @@ To run the tool you need run **csdetector.py** with the right parameters. Pass t
 
 ### **2.3.2 Using a web service call**
 
-To use the tool in this way, you have to run **csDetectorWebService.py** located in the *webservice* folder of the project. To detect the smells on a repository for example, it will only be necessary to open a browser and do a GET request to **http://localhost:5000/getSmells?repo=your_repo_link&pat=your_github_pat**. The response will be in a JSON format where the smells will be indicated using the acronym convention used in [Community Smells Definition](#community-smells-definitions) 
+To use the tool in this way, you have to run **csDetectorWebService.py** located in the *webservice* folder of the project. To detect the smells on a repository for example, it will only be necessary to open a browser and do a GET request to **http://localhost:5001/getSmells?repo=your_repo_link&pat=your_github_pat**. The response will be in a JSON format where the smells will be indicated using the acronym convention used in [Community Smells Definition](#community-smells-definitions) 
 
 ## **3) Optional Configuration**
 

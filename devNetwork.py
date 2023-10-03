@@ -1,5 +1,6 @@
 import sys
 import os
+import platform
 import subprocess
 import shutil
 import stat
@@ -23,7 +24,10 @@ from smellDetection import smellDetection
 from politenessAnalysis import politenessAnalysis
 from dateutil.relativedelta import relativedelta
 
-FILEBROWSER_PATH = os.path.join(os.getenv("WINDIR"), "explorer.exe")
+if platform.system() == "Windows":
+    FILEBROWSER_PATH = os.path.join(os.getenv("WINDIR"), "explorer.exe")
+else:
+    FILEBROWSER_PATH = "open"
 
 communitySmells = [
     {"acronym": "OSE", "name": "Organizational Silo Effect"},

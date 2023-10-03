@@ -257,7 +257,7 @@ def prepareGraph(
     print("Outputting graph")
     plt.figure(5, figsize=(30, 30))
 
-    nx.draw(
+    nx.draw_networkx(
         G,
         with_labels=True,
         node_color="orange",
