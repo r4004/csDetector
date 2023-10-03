@@ -1,5 +1,6 @@
 import sys
 import os
+import platform
 import subprocess
 import shutil
 import stat
@@ -23,7 +24,10 @@ from smellDetection import smellDetection
 from politenessAnalysis import politenessAnalysis
 from dateutil.relativedelta import relativedelta
 
-FILEBROWSER_PATH = os.path.join(os.getenv("WINDIR"), "explorer.exe")
+if platform.system() == "Windows":
+    FILEBROWSER_PATH = os.path.join(os.getenv("WINDIR"), "explorer.exe")
+else:
+    FILEBROWSER_PATH = "open"
 
 communitySmells = [
     {"acronym": "OSE", "name": "Organizational Silo Effect"},
@@ -33,7 +37,7 @@ communitySmells = [
     {"acronym": "OS", "name": "Organizational Skirmish"},
     {"acronym": "SD", "name": "Solution Defiance "},
     {"acronym": "RS", "name": "Radio Silence"},
-    {"acronym": "TFS", "name": "Truck Factor Smell"},
+    {"acronym": "TF", "name": "Truck Factor Smell"},
     {"acronym": "UI", "name": "Unhealthy Interaction"},
     {"acronym": "TC", "name": "Toxic Communication"},
 ]
@@ -205,23 +209,23 @@ def get_community_smell_name(smell):
     return smell
 
 # collecting execution data into a dataset
-def add_to_smells_dataset(config, startingDate, detectedSmells):
+def add_to_smells_dataset(config, starting_date, detected_smells):
     with pd.ExcelWriter('./communitySmellsDataset.xlsx', engine="openpyxl", mode='a', if_sheet_exists="overlay") as writer:
         dataframe = pd.DataFrame(index=[writer.sheets['dataset'].max_row],
                                  data={'repositoryUrl': [config.repositoryUrl],
                                        'repositoryName': [config.repositoryName],
                                        'repositoryAuthor': [config.repositoryOwner],
-                                       'startingDate': [startingDate],
-                                       'OSE': [str(detectedSmells.count('OSE'))],
-                                       'BCE': [str(detectedSmells.count('BCE'))],
-                                       'PDE': [str(detectedSmells.count('PDE'))],
-                                       'SV': [str(detectedSmells.count('SV'))],
-                                       'OS': [str(detectedSmells.count('OS'))],
-                                       'SD': [str(detectedSmells.count('SD'))],
-                                       'RS': [str(detectedSmells.count('RS'))],
-                                       'TFS': [str(detectedSmells.count('TFS'))],
-                                       'UI': [str(detectedSmells.count('UI'))],
-                                       'TC': [str(detectedSmells.count('TC'))]
+                                       'startingDate': [starting_date],
+                                       'OSE': [str(detected_smells.count('OSE'))],
+                                       'BCE': [str(detected_smells.count('BCE'))],
+                                       'PDE': [str(detected_smells.count('PDE'))],
+                                       'SV': [str(detected_smells.count('SV'))],
+                                       'OS': [str(detected_smells.count('OS'))],
+                                       'SD': [str(detected_smells.count('SD'))],
+                                       'RS': [str(detected_smells.count('RS'))],
+                                       'TFS': [str(detected_smells.count('TFS'))],
+                                       'UI': [str(detected_smells.count('UI'))],
+                                       'TC': [str(detected_smells.count('TC'))]
                                        })
         dataframe.to_excel(writer, sheet_name="dataset",
                            startrow=writer.sheets['dataset'].max_row, header=False)

@@ -1,7 +1,5 @@
 from devNetwork import devNetwork
-from typing import Sequence
 import sys
-import os
 
 
 # since the interface of the execution is only command line input, we want something to adapt our web service

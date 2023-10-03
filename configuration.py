@@ -1,6 +1,7 @@
 import os
 import argparse
 from typing import Sequence
+from urllib.parse import urlparse
 
 
 class Configuration:
@@ -159,6 +160,43 @@ def parseDevNetworkArgs(args: Sequence[str]):
     )
 
     args = parser.parse_args(args)
+
+    #validation of the input inserted by the user
+    if args.repositoryUrl is None:
+        raise ValueError("The repository URL is needed")
+
+    if "github" not in urlparse(args.repositoryUrl).netloc:
+        raise ValueError("The repository URL inserted is not valid or malformed")
+
+    if args.pat is None:
+        raise ValueError("A valid Github PAT is needed to clone the repository")
+
+    senti_files_found = False
+
+    if args.sentiStrengthPath is None:
+        raise ValueError("A valid senti folder is needed to perform sentiment analysis on the repository")
+
+    try:
+        with os.scandir(args.sentiStrengthPath) as entries:
+            for entry in entries:
+                if "SentiStrength" in entry.name:
+                    senti_files_found = True
+                    break
+        if not senti_files_found:
+            raise ValueError("The senti folder provided does not contains the needed files. Check the README for more "
+                             "details")
+    except FileNotFoundError:
+        raise ValueError("A malformed or invalid senti folder is provided")
+
+    if args.outputPath is None:
+        raise ValueError("A valid output folder is needed to save the analysis of the repository")
+
+    try:
+        with os.scandir(args.outputPath) as entries:
+            pass
+    except FileNotFoundError:
+        raise ValueError("The output folder provided is not avaiable in the file system or have restricted access")
+
     config = Configuration(
         args.repositoryUrl,
         args.batchMonths,
