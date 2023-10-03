@@ -28,15 +28,23 @@ def commitAnalysis(
     batches = []
     batch = []
     startDate = None
+    endDate = None
     if config.startDate is not None:
         startDate = datetime.strptime(config.startDate, "%Y-%m-%d")
         startDate = startDate.replace(tzinfo=pytz.UTC)
+    
+    if config.endDate is not None:
+        endDate = datetime.strptime(config.endDate, "%Y-%m-%d")
+        endDate = endDate.replace(tzinfo=pytz.UTC)
+
     batchStartDate = None
     batchEndDate = None
     batchDates = []
 
     for commit in Bar("Batching commits").iter(commits):
         if startDate is not None and startDate > commit.committed_datetime:
+            continue
+        if endDate is not None and endDate < commit.committed_datetime: 
             continue
         # prepare first batch
         if batchStartDate == None:

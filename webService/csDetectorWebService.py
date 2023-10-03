@@ -4,6 +4,7 @@ p = os.path.abspath('.')
 sys.path.insert(1, p)
 from flask import jsonify, request, send_file
 from csDetectorAdapter import CsDetectorAdapter
+import csv
  
 app = flask.Flask(__name__)
 app.config['UPLOAD_FOLDER'] = "/"
@@ -12,7 +13,8 @@ app.config['UPLOAD_FOLDER'] = "/"
 @app.route('/getSmells', methods=['GET'])
 def getSmells():
     needed_graphs = False
-    date = None
+    startDate = None
+    endDate = None
     if 'repo' in request.args:
         repo = str(request.args['repo'])
     else:
@@ -29,24 +31,37 @@ def getSmells():
         user = "default" 
 
     if 'graphs' in request.args:
-        needed_graphs = bool(request.args['graphs'])    
-    if 'date' in request.args:
-        date = request.args['date']
+        needed_graphs = bool(request.args['graphs'])
     
+    if 'start' in request.args:
+        startDate = request.args['start']
+
+    if 'end' in request.args:
+        endDate = request.args['end']
+
+
     try:
         os.mkdir("out/output_"+user)
     except Exception as e:
         pass
     
     tool = CsDetectorAdapter()
-    if date is not None:
-        print(date)
-        els = str(date).split("/")
-        sd = els[2]+"-"+els[1]+"-"+els[0]
+    sd = "null"
+    ed = "null"
+
+    if startDate is not None:
+        print(startDate)
+        sd = startDate
         print(sd)
-        formattedResult, result, config = tool.executeTool(repo, pat, startingDate=sd, outputFolder="out/output_"+user)
-    else:
-        formattedResult, result, config = tool.executeTool(repo, pat, outputFolder="out/output_"+user)
+
+    if endDate is not None:
+        print(endDate)
+        els1 = str(endDate).split("/")
+        ed = endDate
+        print(ed)
+
+    output_path = "out/output_"+user
+    formattedResult, result, config = tool.executeTool(repo, pat, startingDate=sd, outputFolder=output_path, endDate=ed)
 
     paths=[]
     if needed_graphs:
@@ -55,8 +70,31 @@ def getSmells():
         paths.append(os.path.join(config.resultsPath, f"issuesAndPRsCentrality_0.pdf"))
         paths.append(os.path.join(config.resultsPath, f"PRs_0.pdf"))
     
-    r = jsonify({"result": result, "files":paths})
+
+    repo_name = extract_repo_name(repo)
+    metrics_filename = os.path.join(os.getcwd(), output_path, repo_name, "results","results_0.csv")
+    metrics_dict = {}
+
+    with open(metrics_filename, "r") as csvfile:
+        reader = csv.reader(csvfile)
+
+        # Iterate over the rows in the CSV file
+        for row in reader:
+            # Add the key-value pair to the dictionary
+            metrics_dict[row[0]] = row[1]
+
+    r = jsonify({"result": result, "files":paths, "metrics":metrics_dict})
     return r
+
+def extract_repo_name(url: str) -> str:
+    # Remove the protocol and split the URL into parts
+    parts = url.replace("https://", "").replace("http://", "").rstrip("/").split("/")
+    # Check if the URL ends with ".git" and remove it if present
+    if parts[-1].endswith(".git"):
+        parts[-1] = parts[-1][:-4]
+    # Join the last two parts and return the result
+    return "/".join(parts[-2:])
+
 
 @app.route('/uploads/<path:filename>')
 def download_file(filename):
