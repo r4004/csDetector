@@ -31,6 +31,7 @@ def commit_analysis(
     batches = []
     batch = []
     start_date = None
+    endDate = None
     if config.startDate is not None:
         start_date = datetime.strptime(config.startDate, "%Y-%m-%d")
         start_date = start_date.replace(tzinfo=pytz.UTC)
