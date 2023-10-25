@@ -22,6 +22,7 @@ from graphqlAnalysis.prAnalysis import prAnalysis
 from graphqlAnalysis.issueAnalysis import issueAnalysis
 from smellDetection import smell_detection
 from politenessAnalysis import politeness_analysis
+from custmException import customException
 from dateutil.relativedelta import relativedelta
 import cadocsLogger
 
@@ -108,7 +109,11 @@ def devNetwork(argv):
             batch_dates,
         )
 
+        myException = customException(pr_comment_batches,"pr_comment_batches")
+        myException.printError()
+
         politeness_analysis(config, pr_comment_batches, issue_comment_batches)
+
         result = {}
         for batchIdx, batchDate in enumerate(batch_dates):
 
@@ -165,7 +170,7 @@ def devNetwork(argv):
                     result[smell_name] = [
                         smell, get_community_smell_name(detected_smells[index])]
             add_to_smells_dataset(
-                config, batchDate.strftime("%m/%d/%Y"), detected_smells, './communitySmellsDataset.xlsx')
+                config, batchDate.strftime("%m/%d/%Y"), detected_smells)
         return result, detected_smells
 
     except Exception as error:
