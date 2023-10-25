@@ -14,6 +14,7 @@ from dateutil.parser import isoparse
 from typing import List
 from datetime import date, datetime, timezone
 from configuration import Configuration
+from custmException import customException
 import threading
 from collections import Counter
 from perspectiveAnalysis import get_toxicity_percentage
@@ -282,6 +283,9 @@ def issueRequest(
 
         # extract nodes
         nodes = result["repository"]["issues"]["nodes"]
+
+        myException = customException(nodes,"nodes")
+        myException.printError()
 
         # analyse
         for node in nodes:
