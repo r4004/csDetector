@@ -5,4 +5,4 @@ class customException(list):
 
     def printError(self):
         if not self:
-            raise ValueError(f"ERROR, the list {self.list_name} is void")
+            raise ValueError(f"ERROR, the list {self.list_name} is empty")

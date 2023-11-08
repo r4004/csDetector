@@ -167,11 +167,10 @@ def devNetwork(argv):
             for index, smell in enumerate(detected_smells):
                 if index != 0:
                     smell_name = "Smell" + str(index)
-                    result[smell_name] = [
-                        smell, get_community_smell_name(detected_smells[index])]
-            add_to_smells_dataset(
-                config, batchDate.strftime("%m/%d/%Y"), detected_smells)
-        return result, detected_smells
+                    result[smell_name] = [smell, get_community_smell_name(detected_smells[index])]
+            add_to_smells_dataset(config, batchDate.strftime("%m/%d/%Y"), detected_smells)
+            
+        return result, detected_smells, config
 
     except Exception as error:
         if str(error).__contains__("401"):
@@ -183,6 +182,8 @@ def devNetwork(argv):
         # close repo to avoid resource leaks
         if "repo" in locals():
             del repo
+
+
 
 # converting community smell acronym in full name
 
