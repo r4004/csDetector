@@ -4,6 +4,7 @@ from flask import jsonify, request, send_file
 import flask
 import os
 import sys
+import json
 p = os.path.abspath('.')
 sys.path.insert(1, p)
 app = flask.Flask(__name__)
@@ -63,7 +64,7 @@ def get_smells():
         print(ed)
 
     output_path = "out/output_"+user
-    formattedResult, result, config = tool.executeTool(
+    formattedResult, result, config, excep = tool.executeTool(
         repo, pat, startingDate=sd, outputFolder=output_path, endDate=ed)
     print("\n\n\n",formattedResult)
 
@@ -73,7 +74,7 @@ def get_smells():
             config.resultsPath, f"commitCentrality_0.pdf"))
         paths.append(os.path.join(config.resultsPath, f"Issues_0.pdf"))
         paths.append(os.path.join(config.resultsPath,
-                     f"issuesAndPRsCentrality_0.pdf"))
+                    f"issuesAndPRsCentrality_0.pdf"))
         paths.append(os.path.join(config.resultsPath, f"PRs_0.pdf"))
 
     repo_name = extract_repo_name(repo)
@@ -91,6 +92,14 @@ def get_smells():
             metrics_dict[row[0]] = row[1]
 
     r = jsonify({"result": result, "Formatted Result": formattedResult})
+    if excep:
+        print("\n\nERRORE execp\n", excep)
+        response_dict = json.loads(excep)
+        error_message = response_dict.get('error')
+        code_value = response_dict.get('code')
+        print("Error message:", error_message)
+        print("Value code:", code_value)
+        return excep,code_value
     return r
 
 def extract_repo_name(url: str) -> str:

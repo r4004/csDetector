@@ -102,15 +102,24 @@ def devNetwork(argv):
             batch_dates,
         )
 
-        issue_participant_batches, issue_comment_batches = issueAnalysis(
+        testFormatt = {}
+        testResult = []
+        testConfig = None
+        
+        issue_participant_batches, issue_comment_batches, excep = issueAnalysis(
             config,
             senti,
             delta,
             batch_dates,
         )
 
-        myException = customException(pr_comment_batches,"pr_comment_batches")
-        myException.printError()
+        if excep:
+            return testFormatt, testResult, testConfig, excep
+        
+        if not pr_comment_batches:
+            custom_exception = customException("ERROR, There are no comments in pullRequest", 890) 
+            return testFormatt, testResult, testConfig, custom_exception.to_json()
+
 
         politeness_analysis(config, pr_comment_batches, issue_comment_batches)
 
@@ -169,14 +178,15 @@ def devNetwork(argv):
                     smell_name = "Smell" + str(index)
                     result[smell_name] = [smell, get_community_smell_name(detected_smells[index])]
             add_to_smells_dataset(config, batchDate.strftime("%m/%d/%Y"), detected_smells)
-            
-        return result, detected_smells, config
+
+        excep = None
+        return result, detected_smells, config, excep
 
     except Exception as error:
         if str(error).__contains__("401"):
-            logger.error("The PAT could be wrong or have reached the maximum number of requests. See https://docs.github.com/en/graphql/overview/resource-limitations for more informations")
+            logger.error("The PAT could be wrong or have reached the maximum number of requests. See https://docs.github.com/en/graphql/overview/resource-limitations for more information")
         else:
-            logger.error(error)
+            logger.error("\n\Exception DEV NETWORK\n\n",error)
 
     finally:
         # close repo to avoid resource leaks

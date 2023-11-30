@@ -1,8 +1,15 @@
-class customException(list):
-    def __init__(self, input_list, list_name):
-        super().__init__(input_list)
-        self.list_name = list_name
+import json
+class customException(Exception):
+    def __init__(self, message, code):
+        self.code_Error = code
+        self.message = message
 
     def printError(self):
-        if not self:
-            raise ValueError(f"ERROR, the list {self.list_name} is empty")
+        if not self.message:
+            raise self
+
+    def to_json(self):
+        return json.dumps({
+            "error": self.message,
+            "code": self.code_Error
+        })
