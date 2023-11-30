@@ -58,7 +58,7 @@ replace <image_name> with the name of the image on Docker Desktop, alternatively
 
 2) In the repository find the *installation.exe* file which contains the tool ready to run without any installation
 
-3) Run *csDetector.exe* .
+3) Run *installation.exe* .
 
 4) After the file created *SentiStrenght* folder
 
