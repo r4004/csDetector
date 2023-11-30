@@ -48,7 +48,7 @@ replace <image_name> with the name of the image on Docker Desktop, alternatively
 
 - Windows 10
 
-- Python 3.8.3
+- Python 3.8.*
 
 - Java 8.0.231 
 
@@ -56,11 +56,15 @@ replace <image_name> with the name of the image on Docker Desktop, alternatively
 
 1) Clone the current repository on your system
 
-2) In the repository find the *csDetector.exe* file which contains the tool ready to run without any installation
+2) In the repository find the *installation.exe* file which contains the tool ready to run without any installation
 
-3) Open a shell to execute the tool (we suggest Command Prompt)
+3) Run *csDetector.exe* .
 
-4) Run *csDetector.exe* with the right parametres see the [Running](#Running) section.
+4) After the file created *SentiStrenght* folder
+
+5) See the [references](#references) section for *Senti* installation and add these file in the folder
+
+6) Continue for installation complete
 
 
 ## **3) Manual usage**
