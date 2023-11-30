@@ -64,7 +64,7 @@ replace <image_name> with the name of the image on Docker Desktop, alternatively
 
 5) See the [references](#references) section for *Senti* installation and add these file in the folder
 
-6) Continue for installation.
+6) Continue for installation complete.
 
 
 ## **3) Manual usage**
