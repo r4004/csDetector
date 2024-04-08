@@ -18,11 +18,8 @@ class CsDetector:
     def executeTool(self, argv):
         # formattedResult can be used to print well formatted data in console (if executed from cli)
         # result instead can be used to return the list of community smells acronym if executed from external sources
-        # formattedResult, result, config = devNetwork(argv)
-        res = devNetwork(argv)
-        if res is not None:
-            formattedResult, result = res
-            return formattedResult, result
+        formattedResult, result, config, excep = devNetwork(argv)
+        return formattedResult, result, config, excep
 
 
 if __name__ == "__main__":

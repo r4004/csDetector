@@ -14,6 +14,7 @@ from dateutil.parser import isoparse
 from typing import List
 from datetime import date, datetime, timezone
 from configuration import Configuration
+from custmException import customException
 import threading
 from collections import Counter
 from perspectiveAnalysis import get_toxicity_percentage
@@ -29,7 +30,7 @@ def issueAnalysis(
 ):
 
     logger.info("Querying issue comments")
-    batches = issueRequest(
+    batches, excep = issueRequest(
         config.pat, config.repositoryOwner, config.repositoryName, delta, batchDates
     )
 
@@ -230,7 +231,7 @@ def issueAnalysis(
             config.resultsPath,
         )
 
-    return batchParticipants, batchComments
+    return batchParticipants, batchComments, excep
 
 
 def analyzeSentiments(
@@ -283,6 +284,13 @@ def issueRequest(
         # extract nodes
         nodes = result["repository"]["issues"]["nodes"]
 
+        print("\n\n\nsono qui")
+        excep = None
+        if not nodes:
+            excep = customException("ERROR, The response of graphQL are empty", 890)
+
+        print("\n\n\n")
+
         # analyse
         for node in nodes:
 
@@ -328,7 +336,10 @@ def issueRequest(
     if batch != None:
         batches.append(batch)
 
-    return batches
+    if not excep:
+        return batches, excep
+    else:
+        return batches, excep.to_json()
 
 
 def buildIssueRequestQuery(owner: str, name: str, cursor: str):

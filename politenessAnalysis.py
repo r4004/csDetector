@@ -3,6 +3,7 @@ import csv
 import convokit
 
 import statsAnalysis as stats
+from custmException import customException
 from configuration import Configuration
 
 
@@ -24,9 +25,13 @@ def calculate_accl(config, pr_comment_batches, issue_comment_batches):
         issue_comment_batch = list([len(c)
                                  for c in issue_comment_batches[batch_idx]])
 
-        pr_comment_lengths_mean = stats.calculate_stats(pr_comment_lengths)["mean"]
-        issue_comment_lengths_mean = stats.calculate_stats(issue_comment_batch)[
-            "mean"]
+
+        if(len(issue_comment_batch) == 0 or len(pr_comment_lengths) == 0):
+            issue_comment_lengths_mean = 0
+            pr_comment_lengths_mean = 0
+        else:
+            pr_comment_lengths_mean = stats.calculate_stats(pr_comment_lengths)["mean"]
+            issue_comment_lengths_mean = stats.calculate_stats(issue_comment_batch)["mean"]
 
         accl = pr_comment_lengths_mean + issue_comment_lengths_mean / 2
 
@@ -67,6 +72,9 @@ def get_results(comments: list):
             for idx, comment in enumerate(comments)
         ]
     )
+
+    myException = customException(utterances,"utterances")
+    myException.printError()
 
     # build corpus
     corpus = convokit.Corpus(utterances=utterances)

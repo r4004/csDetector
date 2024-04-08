@@ -78,3 +78,4 @@ wcwidth==0.2.6
 Werkzeug==2.3.7
 xlrd==2.0.1
 zipp==3.16.2
+wheel==0.41.2

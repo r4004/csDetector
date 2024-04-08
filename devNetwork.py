@@ -22,6 +22,7 @@ from graphqlAnalysis.prAnalysis import prAnalysis
 from graphqlAnalysis.issueAnalysis import issueAnalysis
 from smellDetection import smell_detection
 from politenessAnalysis import politeness_analysis
+from custmException import customException
 from dateutil.relativedelta import relativedelta
 import cadocsLogger
 
@@ -101,14 +102,27 @@ def devNetwork(argv):
             batch_dates,
         )
 
-        issue_participant_batches, issue_comment_batches = issueAnalysis(
+        testFormatt = {}
+        testResult = []
+        testConfig = None
+        
+        issue_participant_batches, issue_comment_batches, excep = issueAnalysis(
             config,
             senti,
             delta,
             batch_dates,
         )
 
+        if excep:
+            return testFormatt, testResult, testConfig, excep
+        
+        if not pr_comment_batches:
+            custom_exception = customException("ERROR, There are no comments in pullRequest", 890) 
+            return testFormatt, testResult, testConfig, custom_exception.to_json()
+
+
         politeness_analysis(config, pr_comment_batches, issue_comment_batches)
+
         result = {}
         for batchIdx, batchDate in enumerate(batch_dates):
 
@@ -162,22 +176,24 @@ def devNetwork(argv):
             for index, smell in enumerate(detected_smells):
                 if index != 0:
                     smell_name = "Smell" + str(index)
-                    result[smell_name] = [
-                        smell, get_community_smell_name(detected_smells[index])]
-            add_to_smells_dataset(
-                config, batchDate.strftime("%m/%d/%Y"), detected_smells, './communitySmellsDataset.xlsx')
-        return result, detected_smells
+                    result[smell_name] = [smell, get_community_smell_name(detected_smells[index])]
+            add_to_smells_dataset(config, batchDate.strftime("%m/%d/%Y"), detected_smells)
+
+        excep = None
+        return result, detected_smells, config, excep
 
     except Exception as error:
         if str(error).__contains__("401"):
-            logger.error("The PAT could be wrong or have reached the maximum number of requests. See https://docs.github.com/en/graphql/overview/resource-limitations for more informations")
+            logger.error("The PAT could be wrong or have reached the maximum number of requests. See https://docs.github.com/en/graphql/overview/resource-limitations for more information")
         else:
-            logger.error(error)
+            logger.error("\n\Exception DEV NETWORK\n\n",error)
 
     finally:
         # close repo to avoid resource leaks
         if "repo" in locals():
             del repo
+
+
 
 # converting community smell acronym in full name
 

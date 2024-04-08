@@ -264,7 +264,7 @@ def prepare_graph(
         f"{output_prefix}_CommunityAuthorItemCount",
         config.resultsPath,
     )
-
+    '''
     # output graph
     logger.info("Outputting graph")
     plt.figure(5, figsize=(30, 30))
@@ -287,7 +287,7 @@ def prepare_graph(
         graph, os.path.join(config.resultsPath,
                             f"{output_prefix}_{batch_idx}.xml")
     )
-
+    '''
     return high_centrality_authors
 
 
