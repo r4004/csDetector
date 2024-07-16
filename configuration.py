@@ -188,6 +188,11 @@ def parse_dev_network_args(args: Sequence[str]):
     except FileNotFoundError:
         raise ValueError("A malformed or invalid senti folder is provided")
 
+    try:
+        os.makedirs("out/output_default")
+    except Exception as e:
+        pass
+
     if args.outputPath is None:
         raise ValueError("A valid output folder is needed to save the analysis of the repository")
 

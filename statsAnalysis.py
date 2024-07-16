@@ -1,4 +1,4 @@
-from statistics import *
+from statistics import mean, stdev
 import os
 import csv
 

@@ -155,7 +155,7 @@ def commit_batch_analysis(
             author_info["earliestCommitDate"] = time
 
         # check if commit was between 9 and 5
-        if not commit.author_tz_offset == 0 and 9 <= time.hour <= 17:
+        if commit.author_tz_offset != 0 and 9 <= time.hour <= 17:
             author_info["sponsoredCommitCount"] += 1
 
     logger.info("Analyzing commit message sentiment")

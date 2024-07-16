@@ -28,6 +28,6 @@ if __name__ == "__main__":
     tool = CsDetector()
     res = tool.executeTool(inputData)
     if res is not None:
-        formattedResults, results = res
+        formattedResults, results, _, _ = res
         logger.info(results)
         print(formattedResults)

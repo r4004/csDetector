@@ -51,15 +51,15 @@ def get_toxicity_percentage(config: Configuration, comments: List):
         response = requests.post(url=url, data=json.dumps(data_dict))
 
         # parse response
-        dict = json.loads(response.content)
+        response_data = json.loads(response.content)
 
         try:
             toxicity = float(
-                dict["attributeScores"]["TOXICITY"]["summaryScore"]["value"]
+                response_data["attributeScores"]["TOXICITY"]["summaryScore"]["value"]
             )
         except:
             print()
-            e = dict["error"]
+            e = response_data["error"]
             raise Exception(f'Error {e["code"]} {e["status"]}: {e["message"]}')
 
         # add to results store if toxic
@@ -84,6 +84,6 @@ def get_toxicity_percentage(config: Configuration, comments: List):
 
 
 def sleep_until_next_minute():
-    t = datetime.utcnow()
+    t = datetime.now()
     sleeptime = 60 - (t.second + t.microsecond / 1000000.0)
     time.sleep(sleeptime)
