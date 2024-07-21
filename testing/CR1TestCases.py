@@ -1,10 +1,10 @@
 import pytest
 import os
-
+import pandas as pd
+from dotenv import load_dotenv
 from configuration import Configuration
 from csDetectorAdapter import CsDetectorAdapter
 from devNetwork import add_to_smells_dataset
-import pandas as pd
 
 '''
 This class contains the test cases of the CR_1: Refactoring I/O
@@ -12,11 +12,14 @@ This class contains the test cases of the CR_1: Refactoring I/O
 
 
 class Test:
+    load_dotenv()
+    SECRET_PAT = os.getenv('SECRET_PAT')
 
     @pytest.fixture
     def example_config(self):
         return Configuration(
             "https://github.com/test/testRepository",
+            "master",
             None,
             "testOutputPath",
             None,
@@ -104,12 +107,13 @@ class Test:
 
     # CR_1-ATE
 
-    # gitRepository, gitPAT, startingDate="null", sentiFolder="./senti", outputFolder="./out"
+    # gitRepository, branch, gitPAT, startingDate="null", sentiFolder="./senti", outputFolder="./out"
 
     def test_tc_ate_1_1(self):
         tool = CsDetectorAdapter()
         tool.executeTool(gitRepository="https://github.com/tensorflow/ranking",
-                         gitPAT="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",
+                         branch="master",
+                         gitPAT=self.SECRET_PAT,
                          #startingDate="2022-05-27",
                          outputFolder="../output",
                          sentiFolder="../senti")
@@ -118,17 +122,19 @@ class Test:
         with pytest.raises(ValueError) as err:
             tool = CsDetectorAdapter()
             tool.executeTool("https://github.com/nuri22/csDetector",
-                             "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"
+                             "master",
+                             self.SECRET_PAT,
                              "26/05/2022",
                              "./senti",
                              "arcimboldo")
-            assert "The output folder provided is not avaiable in the file system or have restricted access" in err.value
+            assert "The output folder provided is not available in the file system or have restricted access" in err.value
 
     def test_tc_ate_1_3(self):
         with pytest.raises(ValueError) as err:
             tool = CsDetectorAdapter()
             tool.executeTool("https://github.com/nuri22/csDetector",
-                             "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"
+                             "master",
+                             self.SECRET_PAT,
                              "26/05/2022",
                              "./senti",
                              None)
@@ -140,7 +146,8 @@ class Test:
                 tool = CsDetectorAdapter()
                 os.mkdir("./arcimboldo")
                 tool.executeTool("https://github.com/nuri22/csDetector",
-                                 "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"
+                                 "master",
+                                 self.SECRET_PAT,
                                  "26/05/2022",
                                  "./arcimboldo",
                                  "./output")
@@ -154,7 +161,8 @@ class Test:
                 tool = CsDetectorAdapter()
                 os.mkdir("./arcimboldo")
                 tool.executeTool("https://github.com/nuri22/csDetector",
-                                 "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"
+                                 "master",
+                                 self.SECRET_PAT,
                                  "26/05/2022",
                                  "pappappero",
                                  "./output")
@@ -166,7 +174,8 @@ class Test:
         with pytest.raises(ValueError) as err:
             tool = CsDetectorAdapter()
             tool.executeTool("https://github.com/nuri22/csDetector",
-                             "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"
+                             "master",
+                             self.SECRET_PAT,
                              "26/05/2022",
                              None,
                              "./output")
@@ -177,6 +186,7 @@ class Test:
         with pytest.raises(ValueError) as err:
             tool = CsDetectorAdapter()
             tool.executeTool("https://github.com/nuri22/csDetector",
+                             "master",
                              None,
                              "26/05/2022",
                              "./senti",
@@ -187,7 +197,8 @@ class Test:
         with pytest.raises(ValueError) as err:
             tool = CsDetectorAdapter()
             tool.executeTool("Io amo il testing",
-                             "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",
+                             "master",
+                             self.SECRET_PAT,
                              "26/05/2022",
                              "./senti",
                              "./output")
@@ -197,7 +208,8 @@ class Test:
         with pytest.raises(ValueError) as err:
             tool = CsDetectorAdapter()
             tool.executeTool(None,
-                             "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",
+                             "master",
+                             self.SECRET_PAT,
                              "26/05/2022",
                              "./senti",
                              "./output")

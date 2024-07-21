@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from csDetector import CsDetector
 
 # this is the adapter class. we can use it to call the adapter from different sources of input
@@ -13,8 +15,8 @@ class CsDetectorAdapter(CsDetector):
     def __init__(self):
         super().__init__()
 
-    def executeTool(self, gitRepository, gitPAT, startingDate="null", sentiFolder="./sentiStrenght", outputFolder="./out", endDate="null"):
-        args = ["-p", gitPAT, "-r", gitRepository, "-s", sentiFolder, "-o", outputFolder]
+    def executeTool(self, gitRepository, branch, gitPAT, startingDate="null", sentiFolder="./sentiStrenght", outputFolder="./out", endDate="null"):
+        args = ["-p", gitPAT, "-r", gitRepository, "-b", branch, "-s", sentiFolder, "-o", outputFolder]
         if startingDate == "null":
             # in this branch we execute the tool normally because no date was provided
             return super().executeTool(args)
@@ -28,10 +30,13 @@ class CsDetectorAdapter(CsDetector):
 
 
 if __name__ == "__main__":
+    load_dotenv()
+    SECRET_PAT = os.getenv('SECRET_PAT')
 
     tool = CsDetectorAdapter()
     formattedResult, result = tool.executeTool(gitRepository="https://github.com/tensorflow/ranking",
-                                               gitPAT="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",
+                                               branch="master",
+                                               gitPAT=SECRET_PAT,
                                                startingDate=None,
                                                outputFolder="./output",
                                                sentiFolder="./senti")

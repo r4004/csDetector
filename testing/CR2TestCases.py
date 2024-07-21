@@ -1,5 +1,7 @@
 import pytest
 import requests
+import os
+from dotenv import load_dotenv
 
 '''
 This class contains the test cases of the CR_2: Create a Web Service
@@ -7,13 +9,15 @@ This class contains the test cases of the CR_2: Create a Web Service
 
 
 class CR2TestCases:
+
     @pytest.fixture
     def repo(self):
         return 'https://github.com/microsoft/QuantumKatas'
 
     @pytest.fixture
     def pat(self):
-        return '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'
+        load_dotenv()
+        return os.getenv('SECRET_PAT')
 
     @pytest.fixture
     def user(self):

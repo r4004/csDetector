@@ -8,6 +8,7 @@ class Configuration:
     def __init__(
         self,
         repositoryUrl: str,
+        branch: str,
         batchMonths: int,
         outputPath: str,
         sentiStrengthPath: str,
@@ -18,6 +19,7 @@ class Configuration:
         endDate: str
     ):
         self.repositoryUrl = repositoryUrl
+        self.branch = branch
         self.batchMonths = batchMonths
         self.outputPath = outputPath
         self.sentiStrengthPath = sentiStrengthPath
@@ -64,6 +66,13 @@ def parse_alias_args(args: Sequence[str]):
     )
 
     parser.add_argument(
+        "-b",
+        "--branch",
+        help="Branch of the GitHub repository that you want to analyse",
+        required=True,
+    )
+
+    parser.add_argument(
         "-d",
         "--maxDistance",
         help="""string distance metric
@@ -89,7 +98,7 @@ def parse_alias_args(args: Sequence[str]):
 
     args = parser.parse_args()
     config = Configuration(
-        args.repositoryUrl, 0, args.outputPath, "", args.maxDistance, args.pat, ""
+        args.repositoryUrl, args.branch, 0, args.outputPath, "", args.maxDistance, args.pat, ""
     )
 
     return config
@@ -120,6 +129,13 @@ def parse_dev_network_args(args: Sequence[str]):
         "-r",
         "--repositoryUrl",
         help="GitHub repository URL that you want to analyse",
+        required=True,
+    )
+
+    parser.add_argument(
+        "-b",
+        "--branch",
+        help="Branch of the GitHub repository that you want to analyse",
         required=True,
     )
 
@@ -165,6 +181,9 @@ def parse_dev_network_args(args: Sequence[str]):
     if args.repositoryUrl is None:
         raise ValueError("The repository URL is needed")
 
+    if args.branch is None:
+        raise ValueError("The branch is needed")
+
     if "github" not in urlparse(args.repositoryUrl).netloc:
         raise ValueError("The repository URL inserted is not valid or malformed")
 
@@ -204,6 +223,7 @@ def parse_dev_network_args(args: Sequence[str]):
 
     config = Configuration(
         args.repositoryUrl,
+        args.branch,
         args.batchMonths,
         args.outputPath,
         args.sentiStrengthPath,

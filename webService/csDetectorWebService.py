@@ -1,5 +1,5 @@
 from csDetectorAdapter import CsDetectorAdapter
-from flask import jsonify, request, send_file, render_template
+from flask import jsonify, request, send_file, render_template, url_for, redirect
 import flask
 import os
 import sys
@@ -23,6 +23,11 @@ def get_smells():
         repo = str(request.args['repo'])
     else:
         return "Error: No repo field provided. Please specify a repo.", 400
+
+    if 'branch' in request.args:
+        branch = str(request.args['branch'])
+    else:
+        return "Error: No branch field provided. Please specify a branch.", 400
 
     if 'pat' in request.args:
         pat = str(request.args['pat'])
@@ -67,7 +72,7 @@ def get_smells():
         print(ed)
 
     formattedResult, result, config, excep = tool.executeTool(
-        repo, pat, startingDate=sd, outputFolder=output_path, endDate=ed)
+        repo, branch, pat, startingDate=sd, outputFolder=output_path, endDate=ed)
     print("\n\n\n", formattedResult)
 
     paths = []
@@ -117,8 +122,14 @@ def download_file(filename):
     return send_file(fn)
 
 
-@app.route('/', methods=['GET'])
+@app.route('/',  methods=['GET', 'POST'])
 def home():
+    if request.method == 'POST':
+        if all(request.form.values()):
+            url = url_for('get_smells') + '?' + '&'.join([f"{key}={value}" for key, value in request.form.items()])
+            return redirect(url)
+        else:
+            return render_template('home.html', message='Fill all the fields!')
     return render_template('home.html')
 
 app.run(host='0.0.0.0', port=5001, threaded=True)

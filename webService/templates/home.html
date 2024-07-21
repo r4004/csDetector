@@ -2,9 +2,27 @@
 <html>
 	<head>
 		<title>Home</title>
+		<link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
 	</head>
 	<body>
 		<h1>Hello!</h1>
-		<p>To execute csDetector, please try running /getSmells?repo=REPOSITORY_URL&pat=GIT_PAT.</p>
+		{%if message%}<h3 style="color: red;">{{message}}</h3>{%endif%}
+		<p>To execute csDetector, fill the fields below.</p>
+		<div class="form1">
+			<form action="" method="post">
+				<label for="repo">Repository:</label>
+				<input type="text" id="repo" name="repo">
+				<br><br>
+				<label for="branch">Branch:</label>
+				<input type="text" id="branch" name="branch">
+				<br><br>
+				<label for="pat">Personal Access Token:</label>
+				<input type="text" id="pat" name="pat">
+				<br><br>
+				<input type="submit" value="Start">
+			</form>
+		</div>
+		<br><br>
+		<p>As an alternative way to execute csDetector, you can try running /getSmells?repo=REPOSITORY_URL&branch=REPOSITORY_BRANCH&pat=GIT_PAT.</p>
 	</body>
 </html>
