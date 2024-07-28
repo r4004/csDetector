@@ -182,11 +182,13 @@ def devNetwork(argv):
         excep = None
         return result, detected_smells, config, excep
 
+    except ValueError as message:
+        raise ValueError(message)
     except Exception as error:
         if str(error).__contains__("401"):
             logger.error("The PAT could be wrong or have reached the maximum number of requests. See https://docs.github.com/en/graphql/overview/resource-limitations for more information")
         else:
-            logger.error("\n\Exception DEV NETWORK\n\n",error)
+            logger.error("Exception DEV NETWORK - %s", str(error))
 
     finally:
         # close repo to avoid resource leaks

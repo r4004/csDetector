@@ -34,11 +34,11 @@ if __name__ == "__main__":
     SECRET_PAT = os.getenv('SECRET_PAT')
 
     tool = CsDetectorAdapter()
-    formattedResult, result = tool.executeTool(gitRepository="https://github.com/tensorflow/ranking",
-                                               branch="master",
-                                               gitPAT=SECRET_PAT,
-                                               startingDate=None,
-                                               outputFolder="./output",
-                                               sentiFolder="./senti")
+    formattedResult, result, _, _ = tool.executeTool(gitRepository="https://github.com/tensorflow/ranking",
+                                                     branch="master",
+                                                     gitPAT=SECRET_PAT,
+                                                     startingDate=None,
+                                                     outputFolder="./out",
+                                                     sentiFolder="./sentiStrenght")
     print(result)
     print(formattedResult)
