@@ -219,7 +219,7 @@ def parse_dev_network_args(args: Sequence[str]):
         with os.scandir(args.outputPath) as entries:
             pass
     except FileNotFoundError:
-        raise ValueError("The output folder provided is not avaiable in the file system or have restricted access")
+        raise ValueError("The output folder provided is not available in the file system or have restricted access")
 
     config = Configuration(
         args.repositoryUrl,

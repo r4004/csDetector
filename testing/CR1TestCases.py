@@ -12,8 +12,6 @@ This class contains the test cases of the CR_1: Refactoring I/O
 
 
 class Test:
-    load_dotenv()
-    SECRET_PAT = os.getenv('SECRET_PAT')
 
     @pytest.fixture
     def example_config(self):
@@ -26,8 +24,8 @@ class Test:
             None,
             None,
             None,
+            None,
             None
-
         )
 
     @pytest.fixture
@@ -44,6 +42,11 @@ class Test:
     @pytest.fixture
     def path(self):
         return os.getcwd() + '\communitySmellsDataset.xlsx'
+
+    @pytest.fixture
+    def pat(self):
+        load_dotenv()
+        return os.getenv('SECRET_PAT')
 
     # CR_1-SSC
 
@@ -71,8 +74,7 @@ class Test:
                                startrow=writer.sheets['dataset'].max_row, header=False)
             max_row_in_excel = writer.sheets['dataset'].max_row
 
-        add_to_smells_dataset(example_config, example_starting_date,
-                              example_detected_smells, os.getcwd() + '\communitySmellsDataset.xlsx')
+        add_to_smells_dataset(example_config, example_starting_date, example_detected_smells)
 
         df = pd.read_excel(io="./communitySmellsDataset.xlsx", sheet_name='dataset')
 
@@ -84,103 +86,96 @@ class Test:
 
         assert are_row_equals
 
-    def test_tc_ssc_1_2(self, example_config, example_starting_date, path):
+    def test_tc_ssc_1_2(self, example_config, example_starting_date):
         with pytest.raises(AttributeError):
-            add_to_smells_dataset(example_config, example_starting_date, None, path)
+            add_to_smells_dataset(example_config, example_starting_date, None)
 
-    def test_tc_ssc_1_3(self, example_config, example_detected_smells, path):
+    def test_tc_ssc_1_3(self, example_config, example_detected_smells):
 
         max_row_in_excel = 0
         with pd.ExcelWriter('./communitySmellsDataset.xlsx', engine="openpyxl", mode="a",
                             if_sheet_exists="overlay") as writer:
             max_row_in_excel = writer.sheets['dataset'].max_row
 
-        add_to_smells_dataset(example_config, None,
-                              example_detected_smells, path)  # controllare che la data sul file non è valorizzata
+        add_to_smells_dataset(example_config, None, example_detected_smells)  # controllare che la data sul file non è valorizzata
         df = pd.read_excel(io="./communitySmellsDataset.xlsx", sheet_name='dataset')
 
         assert df.iloc[max_row_in_excel - 1]['startingDate'] != df.iloc[max_row_in_excel - 1]['startingDate']
 
-    def test_tc_ssc_1_4(self, example_detected_smells, example_starting_date, path):
+    def test_tc_ssc_1_4(self, example_detected_smells, example_starting_date):
         with pytest.raises(AttributeError):
-            add_to_smells_dataset(None, example_starting_date, example_detected_smells, path)
+            add_to_smells_dataset(None, example_starting_date, example_detected_smells)
 
     # CR_1-ATE
 
-    # gitRepository, branch, gitPAT, startingDate="null", sentiFolder="./senti", outputFolder="./out"
+    # gitRepository, branch, gitPAT, startingDate="null", sentiFolder="../sentiStrenght", outputFolder="../out"
 
-    def test_tc_ate_1_1(self):
+    def test_tc_ate_1_1(self, pat):
         tool = CsDetectorAdapter()
         tool.executeTool(gitRepository="https://github.com/tensorflow/ranking",
                          branch="master",
-                         gitPAT=self.SECRET_PAT,
-                         #startingDate="2022-05-27",
-                         outputFolder="../output",
-                         sentiFolder="../senti")
+                         gitPAT=pat,
+                         outputFolder="../out",
+                         sentiFolder="../sentiStrenght")
 
-    def test_tc_ate_1_2(self):
+    def test_tc_ate_1_2(self, pat):
         with pytest.raises(ValueError) as err:
             tool = CsDetectorAdapter()
             tool.executeTool("https://github.com/nuri22/csDetector",
                              "master",
-                             self.SECRET_PAT,
+                             pat,
                              "26/05/2022",
-                             "./senti",
-                             "arcimboldo")
-            assert "The output folder provided is not available in the file system or have restricted access" in err.value
+                             "../sentiStrenght",
+                             "../arcimboldo")
+        assert "The output folder provided is not available in the file system or have restricted access" in str(err.value)
 
-    def test_tc_ate_1_3(self):
+    def test_tc_ate_1_3(self, pat):
         with pytest.raises(ValueError) as err:
             tool = CsDetectorAdapter()
             tool.executeTool("https://github.com/nuri22/csDetector",
                              "master",
-                             self.SECRET_PAT,
+                             pat,
                              "26/05/2022",
-                             "./senti",
+                             "../sentiStrenght",
                              None)
-            assert "A valid output folder is needed to save the analysis of the repository" in err.value
+        assert "A valid output folder is needed to save the analysis of the repository" in str(err.value)
 
-    def test_tc_ate_1_4(self):
+    def test_tc_ate_1_4(self, pat):
         try:
             with pytest.raises(ValueError) as err:
                 tool = CsDetectorAdapter()
-                os.mkdir("./arcimboldo")
+                os.mkdir("../arcimboldo")
                 tool.executeTool("https://github.com/nuri22/csDetector",
                                  "master",
-                                 self.SECRET_PAT,
+                                 pat,
                                  "26/05/2022",
-                                 "./arcimboldo",
-                                 "./output")
-                assert "The senti folder provided does not contains the needed files. Check the README for more details" in err.value
+                                 "../arcimboldo",
+                                 "../out")
+            assert "The senti folder provided does not contains the needed files. Check the README for more details" in str(err.value)
         finally:
-            os.rmdir("./arcimboldo")
+            os.rmdir("../arcimboldo")
 
-    def test_tc_ate_1_5(self):
-        try:
-            with pytest.raises(ValueError) as err:
-                tool = CsDetectorAdapter()
-                os.mkdir("./arcimboldo")
-                tool.executeTool("https://github.com/nuri22/csDetector",
-                                 "master",
-                                 self.SECRET_PAT,
-                                 "26/05/2022",
-                                 "pappappero",
-                                 "./output")
-                assert "A malformed or invalid senti folder is provided" in err.value
-        finally:
-            os.rmdir("./arcimboldo")
-
-    def test_tc_ate_1_6(self):
+    def test_tc_ate_1_5(self, pat):
         with pytest.raises(ValueError) as err:
             tool = CsDetectorAdapter()
             tool.executeTool("https://github.com/nuri22/csDetector",
                              "master",
-                             self.SECRET_PAT,
+                             pat,
+                             "26/05/2022",
+                             "pappappero",
+                             "../out")
+        assert "A malformed or invalid senti folder is provided" in str(err.value)
+
+    def test_tc_ate_1_6(self, pat):
+        with pytest.raises(ValueError) as err:
+            tool = CsDetectorAdapter()
+            tool.executeTool("https://github.com/nuri22/csDetector",
+                             "master",
+                             pat,
                              "26/05/2022",
                              None,
-                             "./output")
-
-            assert "A valid senti folder is needed to perform sentiment analysis on the repository" in err.value
+                             "../out")
+        assert "A valid senti folder is needed to perform sentiment analysis on the repository" in str(err.value)
 
     def test_tc_ate_1_7(self):
         with pytest.raises(ValueError) as err:
@@ -189,28 +184,39 @@ class Test:
                              "master",
                              None,
                              "26/05/2022",
-                             "./senti",
-                             "./output")
-            assert "A valid Github PAT is needed to clone the repository" in err.value
+                             "../sentiStrenght",
+                             "../out")
+        assert "A valid Github PAT is needed to clone the repository" in str(err.value)
 
-    def test_tc_ate_1_8(self):
+    def test_tc_ate_1_8(self, pat):
         with pytest.raises(ValueError) as err:
             tool = CsDetectorAdapter()
             tool.executeTool("Io amo il testing",
                              "master",
-                             self.SECRET_PAT,
+                             pat,
                              "26/05/2022",
-                             "./senti",
-                             "./output")
-            assert "The repository URL inserted is not valid or malformed" in err.value
+                             "../sentiStrenght",
+                             "../out")
+        assert "The repository URL inserted is not valid or malformed" in str(err.value)
 
-    def test_tc_ate_1_9(self):
+    def test_tc_ate_1_9(self, pat):
         with pytest.raises(ValueError) as err:
             tool = CsDetectorAdapter()
             tool.executeTool(None,
                              "master",
-                             self.SECRET_PAT,
+                             pat,
                              "26/05/2022",
-                             "./senti",
-                             "./output")
-            assert "The repository URL is needed" in err.value
+                             "../sentiStrenght",
+                             "../out")
+        assert "The repository URL is needed" in str(err.value)
+
+    def test_tc_ate_1_10(self, pat):
+        with pytest.raises(ValueError) as err:
+            tool = CsDetectorAdapter()
+            tool.executeTool("https://github.com/tensorflow/ranking",
+                             None,
+                             pat,
+                             None,
+                             "../sentiStrenght",
+                             "../out")
+        assert "The branch is needed" in str(err.value)
